@@ -1,0 +1,79 @@
+[
+{ 
+  "agentType":"agentExplo",
+  "agentName": "Mario",
+  "communicationRange": 3,
+  "initialLocation": "free",
+  "backPackCapacityGold": -1,
+  "backPackCapacityDiamond":-1, 
+  "detectionRadius": 0,
+  "strengthExpertise": 2,
+  "lockPickingExpertise":1
+  },
+{ 
+"agentType":"agentExplo",
+"agentName": "Luigi",
+"communicationRange": 3,
+"initialLocation": "free",
+"backPackCapacityGold": -1,
+"backPackCapacityDiamond":-1, 
+"detectionRadius": 0,
+"strengthExpertise": 2,
+"lockPickingExpertise":1
+},
+{ 
+  "agentType":"agentCollect",
+  "agentName": "Peach",
+  "communicationRange": 3,
+  "initialLocation": "free",
+  "backPackCapacityGold": 20,
+  "backPackCapacityDiamond":-1, 
+  "detectionRadius": 0,
+  "strengthExpertise": 1,
+  "lockPickingExpertise":1
+  },
+ { 
+"agentType":"agentCollect",
+"agentName": "Daisy",
+"communicationRange": 3,
+"initialLocation": "free",
+"backPackCapacityGold": -1,
+"backPackCapacityDiamond":30, 
+"detectionRadius": 0,
+"strengthExpertise": 1,
+"lockPickingExpertise":1
+},
+{ 
+  "agentType":"agentTanker",
+  "agentName": "Toad",
+  "communicationRange": 3,
+  "initialLocation": "free",
+  "backPackCapacityGold": 1000,
+  "backPackCapacityDiamond":1000, 
+  "detectionRadius": 0,
+  "strengthExpertise": 1,
+  "lockPickingExpertise":1
+  },
+ { 
+    "agentType":"wumpus",
+    "agentName": "Bowser",
+    "communicationRange": 3,
+    "initialLocation": "free",
+    "backPackCapacityGold": 100,
+    "backPackCapacityDiamond":-1, 
+    "detectionRadius": 0,
+    "strengthExpertise": 2,
+    "lockPickingExpertise":1
+},
+{ 
+  "agentType":"HumanControlled",
+  "agentName": "ImHere",
+  "communicationRange": 3,
+  "initialLocation": "free",
+  "backPackCapacityGold": -1,
+  "backPackCapacityDiamond":-1, 
+  "detectionRadius": 1,
+  "strengthExpertise": 1,
+  "lockPickingExpertise":1
+  }
+]
