@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Explore;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,9 @@ import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import global.Global;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
+import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
 
 
 public class MyExploreBehaviour extends SimpleBehaviour {
@@ -109,7 +112,8 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				}
 				
 			}
-			((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(nextNodeId));
+			
+			Global.moveNextNode(nextNodeId, (AbstractDedaleAgent) myAgent, color, agentName);
 		}
 			
 		exit = 1;

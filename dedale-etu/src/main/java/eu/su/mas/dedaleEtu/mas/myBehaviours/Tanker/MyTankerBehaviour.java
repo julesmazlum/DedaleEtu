@@ -18,9 +18,6 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 
 	private boolean finished = false;
 	private int exit;
-	private List<String> positions = new ArrayList<>();
-	private String og = null;
-	private boolean bool = true;
 	
 	public MyTankerBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
@@ -32,28 +29,35 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 		String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
+		String initPosition = ((MyTankerAgent) this.myAgent).getInitPosition();
+		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		boolean needToMove = ((MyTankerAgent) this.myAgent).getNeedToMove();
+		List<String> listToMove = new ArrayList<String>();
+		
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
 		
-		if(og == null) {
-			og = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition().toString();
+		if(initPosition==null) {
+			((MyTankerAgent) this.myAgent).setInitPosition(myPosition.toString());
+		}
+		
+		if(needToMove) {
 			//Parcours des observations
 			for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
-			    positions.add(locationCouple.getLeft().toString());
+			    Location location = locationCouple.getLeft();
+
+			    listToMove.add(location.toString());
 			}
-			positions.remove(og);
+			listToMove.remove(myPosition.toString());
+			String pos = listToMove.get((int)(Math.random() * listToMove.size()));
+			
+			((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos));
+			((MyTankerAgent) this.myAgent).setNeedToMove(false);
+			
+			exit = 1;
+			finished = true;
+			return;
+			    
 		}
-		
-		String nextNode = null;		
-		if(bool) {
-			nextNode = positions.get((int) (Math.random() * positions.size())).toString();
-			bool = false;
-		}else {
-			nextNode = og;
-			bool = true;
-		}
-		
-		System.out.println(color + agentName + " : Je me déplace aux alentours");
-		move(nextNode);
 	
 		exit = 1;
 		finished = true;
@@ -70,27 +74,6 @@ public class MyTankerBehaviour extends SimpleBehaviour {
     public int onEnd() {
        return exit;
     }
-	
-	public void move(String nextNode) {
-        try {
-            boolean success = ((AbstractDedaleAgent) this.myAgent).moveTo(new GsLocation(nextNode));
-            if (!success) {
-                System.out.println("❌ Impossible de bouger vers " + nextNode);
-                // tu peux décider ici de soit break, soit skip le node
-                return; 
-            }
-        } catch (Exception e) {
-            System.out.println("⚠️ ERREUR dans move vers " + nextNode + " : " + e.getMessage());
-            return; // on stoppe la boucle si y'a une exception
-        }
-
-        try {
-            this.myAgent.doWait(Global.temps);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	    
-	}
 	
 
 }

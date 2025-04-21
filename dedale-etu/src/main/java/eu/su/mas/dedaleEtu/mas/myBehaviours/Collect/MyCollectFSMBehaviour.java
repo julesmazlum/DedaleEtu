@@ -12,6 +12,7 @@ public class MyCollectFSMBehaviour extends FSMBehaviour {
 	private static final String STATE_OBSERVE_AND_PICK = "ObserveAndPick";
 	private static final String STATE_COM = "Communication";
 	private static final String STATE_MOVE = "Move";
+	private static final String STATE_SEND = "Send";
 
 
     public MyCollectFSMBehaviour(final AbstractDedaleAgent myagent) {
@@ -20,6 +21,7 @@ public class MyCollectFSMBehaviour extends FSMBehaviour {
         SimpleBehaviour observeAndPick = new MyCollectObserveAndPickBehaviour(myagent);
         SimpleBehaviour communication = new MyCollectCommunicationBehaviour(myagent);
         SimpleBehaviour move = new MyCollectMoveBehaviour(myagent);
+        SimpleBehaviour send = new MyCollectShareMapBehaviour(myagent);
 
 
         // ajouter les états à la machine
@@ -27,6 +29,7 @@ public class MyCollectFSMBehaviour extends FSMBehaviour {
         registerState(observeAndPick, STATE_OBSERVE_AND_PICK);
         registerState(communication, STATE_COM);
         registerState(move, STATE_MOVE);
+        registerState(send, STATE_SEND);
 
 
         // définir les transitions
@@ -34,6 +37,8 @@ public class MyCollectFSMBehaviour extends FSMBehaviour {
         registerTransition(STATE_EXPLORE, STATE_MOVE, 2);
         registerTransition(STATE_MOVE, STATE_OBSERVE_AND_PICK, 1);
         registerTransition(STATE_OBSERVE_AND_PICK, STATE_COM, 1);
+        registerTransition(STATE_OBSERVE_AND_PICK, STATE_SEND, 2);
+        registerTransition(STATE_SEND, STATE_COM, 1);
         registerTransition(STATE_COM, STATE_EXPLORE, 1);
 
 

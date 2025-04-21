@@ -4,10 +4,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import global.Global;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
@@ -36,6 +37,7 @@ public class MyCollectMoveBehaviour extends SimpleBehaviour {
 		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
+		List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();
 		
 		
 		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());
@@ -70,10 +72,12 @@ public class MyCollectMoveBehaviour extends SimpleBehaviour {
 		
 		
 		System.out.println(color+ agentName+" : Chemin vers la ressource la plus proche calculée. C'est celle en "+posRemove);
-		//listMyType.remove(posRemove);
+		((MyCollectAgent) this.myAgent).setGoToTres(posRemove);
+		
 		
 		System.out.println(color+ agentName+" : J'y vais.");
-		move(shortestPath);
+		Global.move(shortestPath, (AbstractDedaleAgent) myAgent, color, agentName);
+		
 		
 		exit = 1;
 		finished = true;
@@ -90,42 +94,5 @@ public class MyCollectMoveBehaviour extends SimpleBehaviour {
     public int onEnd() {
        return exit;
     }
-	
-	public void move2(List<String> liste){
-		while (!liste.isEmpty()) {
-		    ((AbstractDedaleAgent) this.myAgent).moveTo(new GsLocation(liste.get(0)));
-		    liste.remove(0); // Removes the first element in the list
-		    try {
-				this.myAgent.doWait(Global.temps);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void move(List<String> liste) {
-	    while (!liste.isEmpty()) {
-	        String nextNode = liste.get(0);
-	        try {
-	            boolean success = ((AbstractDedaleAgent) this.myAgent).moveTo(new GsLocation(nextNode));
-	            if (!success) {
-	                System.out.println("❌ Impossible de bouger vers " + nextNode);
-	                // tu peux décider ici de soit break, soit skip le node
-	                break; 
-	            }
-	            liste.remove(0); // move réussi ➔ on passe au prochain
-	        } catch (Exception e) {
-	            System.out.println("⚠️ ERREUR dans move vers " + nextNode + " : " + e.getMessage());
-	            break; // on stoppe la boucle si y'a une exception
-	        }
-
-	        try {
-	            this.myAgent.doWait(Global.temps);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }
-	}
-
 
 }

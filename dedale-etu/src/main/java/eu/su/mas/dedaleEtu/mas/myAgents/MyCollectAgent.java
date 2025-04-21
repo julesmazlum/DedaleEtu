@@ -27,6 +27,7 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	private HashMap<String, String> agent_types = new HashMap<>();
 	private Map<String, MapRepresentation> liste_agent_map = new HashMap<>();
 	private HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = new HashMap<>();
+	private String goToTres = null;
 
 
 	protected void setup(){
@@ -164,4 +165,18 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	public void setAgent_types(HashMap<String, String> agent_types) {
 		this.agent_types = agent_types;
 	}
+
+
+	public String getGoToTres() {
+		return goToTres;
+	}
+
+
+	public void setGoToTres(String goToTres) {
+		this.goToTres = goToTres;
+	}
+	
+	
+	
+	
 }

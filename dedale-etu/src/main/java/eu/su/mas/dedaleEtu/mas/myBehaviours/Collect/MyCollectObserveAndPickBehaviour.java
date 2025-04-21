@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
@@ -14,7 +13,6 @@ import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyCollectAgent;
-import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import global.Global;
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
@@ -48,6 +46,8 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		Map<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
 		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
+		String goToTres = ((MyCollectAgent) this.myAgent).getGoToTres();
 		
 		//Parcours des observations
 		for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
@@ -56,6 +56,35 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 
 		    // afficher la location observée
 		    //System.out.println("Location observée : " + location);
+		    
+		    if(tankLoc!=null && location.toString().equals(tankLoc.toString())) {
+		    	
+		    	if(observationDetails.size()==0) {
+		    		System.out.println(color + agentName+ " : Le tank n'est plus la...");
+		    		((MyCollectAgent) this.myAgent).setTankLoc(null);
+		    	} 
+		    }
+		    
+		    if(goToTres!=null && location.toString().equals(goToTres)) {
+		    	if(observationDetails.size()==0) {
+		    		System.out.println(color + agentName+ " : Il n'y a plus de trésors ici finalement...");
+		    		Instant time2 = Instant.now();
+		    		
+		    		for (int i = 0; i < listMyType.size(); i++) {
+		        	    Tuple3<String, Integer, Instant> tuple = listMyType.get(i);
+		        	    
+		        	    if (tuple.getFirst().equals(location.toString())) {
+		        	        Tuple3<String, Integer, Instant> updatedTuple = new Tuple3<>(location.toString(), 0, time2);
+		        	        System.out.println(color + agentName+" : Je met à jour la quantité et le temps "+updatedTuple);
+		        	        listMyType.set(i, updatedTuple);
+		        	        System.out.println(color + agentName+" : Nouvelle liste  "+listMyType);
+		        	        break;
+		        	    }
+		        	}
+		    		
+		    	}
+		    	((MyCollectAgent) this.myAgent).setGoToTres(null);
+		    }
 
 		    // parcourir les détails des observations
 		    for (Couple<Observation, String> detail : observationDetails) {
@@ -87,6 +116,15 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		        		((AbstractDedaleAgent)this.myAgent).sendMessage(msgASKTYPE);
 		        		System.out.println(color + agentName+ " : J'ai demandé son type");
 		        	}
+		        	
+		        	//Je lui envoie la carte
+		        	if (agent_types.containsKey(valeur) && !"agentTanker".equals(agent_types.get(valeur))) {
+			        	System.out.println(color + agentName+ " : J'ai rencontré "+valeur+" je vais lui envoyer les données que j'ai (carte, position ressources et tank)");
+			        	((MyCollectAgent) this.myAgent).setAgentNameToSendTo(valeur);
+			        	exit = 2;
+						finished = true;
+						return;
+		        	} 
 		        }
 		        
 		        //si j'ai le nom du tanker et je rencontre tank

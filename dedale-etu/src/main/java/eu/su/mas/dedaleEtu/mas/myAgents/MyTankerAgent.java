@@ -11,6 +11,8 @@ import jade.core.behaviours.Behaviour;
 public class MyTankerAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
+	private String initPosition;
+	private boolean needToMove = false;
 		
 	protected void setup(){
 
@@ -72,5 +74,29 @@ public class MyTankerAgent extends AbstractDedaleAgent {
 		super.afterMove();
 		//System.out.println("I migrated");
 	}
+
+
+	public String getInitPosition() {
+		return initPosition;
+	}
+
+
+	public void setInitPosition(String initPosition) {
+		this.initPosition = initPosition;
+	}
+
+
+	public boolean getNeedToMove() {
+		return needToMove;
+	}
+
+
+	public void setNeedToMove(boolean needToMove) {
+		this.needToMove = needToMove;
+	}
+	
+	
+	
+	
 
 }

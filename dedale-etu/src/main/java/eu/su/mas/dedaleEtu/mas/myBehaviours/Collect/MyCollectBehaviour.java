@@ -1,12 +1,11 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Collect;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
@@ -17,7 +16,9 @@ import global.Global;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyCollectAgent;
+import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
 
 
 public class MyCollectBehaviour extends SimpleBehaviour {
@@ -81,7 +82,12 @@ public class MyCollectBehaviour extends SimpleBehaviour {
     			System.out.println(color+ agentName+" : J'ai reçu la position de ressources "+qte+" et j'ai une capacité de "+cap);
     			if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
-        			move(myMap.getShortestPath(myPosition.toString(), tankLoc.toString()));
+        			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
+        			chemin.remove(chemin.size()-1);
+        			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
+        			exit = 1;
+        			finished = true;
+        			return;
         		}else {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" mais je sais pas ou est le tank donc j'explore aléatoirement.");
         		}
@@ -90,10 +96,17 @@ public class MyCollectBehaviour extends SimpleBehaviour {
     		if(cap<=5) {
         		if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
-        			move(myMap.getShortestPath(myPosition.toString(), tankLoc.toString()));
+        			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
+        			chemin.remove(chemin.size()-1);
+        			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
+        			exit = 1;
+        			finished = true;
+        			return;
         		}else {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" mais je sais pas ou est le tank donc j'explore aléatoirement.");
         		}
+        	}else {
+        		System.out.println(color+ agentName+" : J'ai de la capacité mais je connais pas l'endroit des trésor donc je me balade");
         	}
     	}
 
@@ -107,7 +120,7 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 	
 		if (myPosition!=null){
 			//List of observable from the agent's current position
-			List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+			List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();
 
 			try {
 				this.myAgent.doWait(Global.temps);
@@ -156,7 +169,8 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 				}
 				
 			}
-			((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(nextNodeId));
+			
+			Global.moveNextNode(nextNodeId, (AbstractDedaleAgent) myAgent, color, agentName);
 		}
 		
 		exit = 1;
@@ -173,29 +187,5 @@ public class MyCollectBehaviour extends SimpleBehaviour {
     public int onEnd() {
        return exit;
     }
-	
-	public void move(List<String> liste) {
-	    while (!liste.isEmpty()) {
-	        String nextNode = liste.get(0);
-	        try {
-	            boolean success = ((AbstractDedaleAgent) this.myAgent).moveTo(new GsLocation(nextNode));
-	            if (!success) {
-	                System.out.println("❌ Impossible de bouger vers " + nextNode);
-	                // tu peux décider ici de soit break, soit skip le node
-	                break; 
-	            }
-	            liste.remove(0); // move réussi ➔ on passe au prochain
-	        } catch (Exception e) {
-	            System.out.println("⚠️ ERREUR dans move vers " + nextNode + " : " + e.getMessage());
-	            break; // on stoppe la boucle si y'a une exception
-	        }
-
-	        try {
-	            this.myAgent.doWait(Global.temps);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }
-	}
 
 }
