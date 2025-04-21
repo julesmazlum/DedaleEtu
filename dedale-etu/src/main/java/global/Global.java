@@ -1,17 +1,12 @@
 package global;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
-import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
-import eu.su.mas.dedaleEtu.mas.myAgents.MyCollectAgent;
-import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
@@ -28,7 +23,7 @@ public class Global {
 	public static final String CYAN = "\u001B[36m";
 	public static final String BLACK = "\u001B[30m";
 	
-	public static int temps = 100;
+	public static int temps = 1000;
 
 	// fonction pour obtenir une couleur en fonction du nom de l'agent
 	public static String getColorForAgent(String agentName) {
@@ -103,45 +98,5 @@ public class Global {
 		}
 		return true;
 	}
-	
-	
-	
-	
-	
-	
-	public static void moveNode(String nextNode, AbstractDedaleAgent myagent) {
-        try {
-            boolean success = myagent.moveTo(new GsLocation(nextNode));
-            if (!success) {
-                System.out.println("❌ Impossible de bouger vers " + nextNode);
-                // tu peux décider ici de soit break, soit skip le node
-                return; 
-            }
-        } catch (Exception e) {
-            System.out.println("⚠️ ERREUR dans move vers " + nextNode + " : " + e.getMessage());
-            return; // on stoppe la boucle si y'a une exception
-        }
-
-        try {
-        	myagent.doWait(Global.temps);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	    
-	}
-
-	
-	/*
-    try {
-        boolean success = myagent.moveTo(new GsLocation(nextNode));
-        if (!success) {
-            System.out.println("❌ Impossible de bouger vers " + nextNode);
-            // tu peux décider ici de soit break, soit skip le node
-        }
-        liste.remove(0); // move réussi ➔ on passe au prochain
-    } catch (Exception e) {
-        System.out.println("⚠️ ERREUR dans move vers " + nextNode + " : " + e.getMessage());
-        break; // on stoppe la boucle si y'a une exception
-    }*/
 
 }

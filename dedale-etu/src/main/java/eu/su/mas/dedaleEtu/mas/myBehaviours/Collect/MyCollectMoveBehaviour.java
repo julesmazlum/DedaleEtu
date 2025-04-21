@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
@@ -37,7 +35,6 @@ public class MyCollectMoveBehaviour extends SimpleBehaviour {
 		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
-		List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();
 		
 		
 		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());

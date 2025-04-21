@@ -8,7 +8,7 @@ import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyTankerAgent;
-import global.Global;
+//import global.Global;
 import jade.core.behaviours.SimpleBehaviour;
 
 
@@ -26,8 +26,8 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 
 	public void action() {
 		
-		String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
-		String color = Global.getColorForAgent(agentName);
+		//String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
+		//String color = Global.getColorForAgent(agentName);
 		
 		String initPosition = ((MyTankerAgent) this.myAgent).getInitPosition();
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();

@@ -1,21 +1,17 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Explore;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import global.Global;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
-import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
-import jade.lang.acl.ACLMessage;
 
 
 public class MyExploreBehaviour extends SimpleBehaviour {

@@ -1,6 +1,5 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Collect;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,15 +9,12 @@ import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import global.Global;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyCollectAgent;
-import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
-import jade.lang.acl.ACLMessage;
 
 
 public class MyCollectBehaviour extends SimpleBehaviour {

@@ -128,7 +128,7 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		        }
 		        
 		        //si j'ai le nom du tanker et je rencontre tank
-		        if(tanker!=null && valeur.equals(tanker)) {
+		        if(tanker!=null && valeur!= null && valeur.equals(tanker)) {
 		        	((MyCollectAgent) this.myAgent).setTankLoc(location);
 		        	myMap.addNewNode(location.getLocationId());
 		        	myMap.addEdge(myPosition.getLocationId(), location.getLocationId());

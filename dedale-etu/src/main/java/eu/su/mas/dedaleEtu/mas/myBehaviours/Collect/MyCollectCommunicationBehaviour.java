@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import dataStructures.serializableGraph.SerializableSimpleGraph;
 import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
@@ -103,6 +102,17 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 				e.printStackTrace();
 			}
 		}
+		
+		
+		//Réception demande de bouger
+		MessageTemplate msgMOVE=MessageTemplate.and(
+				MessageTemplate.MatchProtocol("MOVE"),
+				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+		ACLMessage msgReceivedMOVE=this.myAgent.receive(msgMOVE);
+		if (msgReceivedMOVE!=null) {
+			System.out.println(color + agentName + " : Je dois bouger");
+		}
+		
 		
 		//Reception données
 		List<Serializable> s=null;

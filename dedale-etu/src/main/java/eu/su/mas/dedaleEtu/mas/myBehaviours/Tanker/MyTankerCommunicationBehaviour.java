@@ -73,15 +73,8 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
 		ACLMessage msgReceivedMOVE=this.myAgent.receive(msgMOVE);
 		if (msgReceivedMOVE!=null) {
-			String messageMOVE=null;
-			try {
-				messageMOVE = (String) msgReceivedMOVE.getContentObject();
-				System.out.println(color + agentName + " : Je dois bouger et pas en "+messageMOVE);
-				((MyTankerAgent) this.myAgent).setNeedToMove(true);
-			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			System.out.println(color + agentName + " : Je dois bouger");
+			((MyTankerAgent) this.myAgent).setNeedToMove(true);
 		}
 		
 		

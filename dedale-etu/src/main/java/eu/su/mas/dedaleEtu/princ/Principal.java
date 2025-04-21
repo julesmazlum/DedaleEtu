@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agents.GateKeeperAgent;
+import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.DummyWumpusShift2;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyCollectAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyTankerAgent;
@@ -302,7 +303,7 @@ public class Principal {
 		 * GOLEM
 		 *********/
 		
-		/*
+		
 		//1) Get the container where the agent will appear
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		//Assert.assertNotNull("This container does not exist",c);
@@ -316,7 +317,7 @@ public class Principal {
 		//4) Give the class name of your agent to let the system instantiate it
 		ag=createNewDedaleAgent(c, agentName, DummyWumpusShift2.class.getName(), entityParameters0);
 		agentList.add(ag);
-		*/
+		
 		
 
 		/*********
@@ -387,7 +388,7 @@ public class Principal {
 		
 		
 
-		
+		/*
 		//1) Get the container where the agent will appear
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
