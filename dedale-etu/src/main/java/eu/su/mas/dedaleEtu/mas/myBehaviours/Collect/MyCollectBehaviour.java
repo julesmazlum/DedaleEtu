@@ -22,7 +22,6 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = 8567689731496787661L;
 
 	private boolean finished = false;
-	private MapRepresentation myMap;
 	private int exit;
 
 
@@ -42,10 +41,13 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
 		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		MapRepresentation myMap = ((MyCollectAgent)this.myAgent).getMyMap();
+		MapRepresentation myMap2 = ((MyCollectAgent)this.myAgent).getMyMap2();
 		
-		if(this.myMap==null) {
-			this.myMap= new MapRepresentation();
-			((MyCollectAgent) this.myAgent).setMyMap(this.myMap);
+		
+		if(myMap==null) {
+			myMap= new MapRepresentation();
+			((MyCollectAgent) this.myAgent).setMyMap(myMap);
 		}
 		
 		
@@ -110,6 +112,17 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 		/*
 		 * Marcher de façon random
 		 */
+    	
+    	if(((MyCollectAgent) this.myAgent).getIsMapExplored()) {
+			System.out.println(color + agentName+" : On recommence une exploration virtuelle");
+			myMap2 = new MapRepresentation(false);
+			((MyCollectAgent) this.myAgent).setMyMap2(myMap2);
+			((MyCollectAgent) this.myAgent).setIsMapExplored(false);
+			myMap = myMap2;
+		}
+		if(myMap2!=null) {
+			myMap = myMap2;
+		}
 		
     	//0) Retrieve the current position
 		myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
@@ -125,19 +138,19 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 			}
 
 			//1) remove the current node from openlist and add it to closedNodes.
-			this.myMap.addNode(myPosition.getLocationId(),MapAttribute.closed);
+			myMap.addNode(myPosition.getLocationId(),MapAttribute.closed);
 
 			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 			String nextNodeId=null;
 			Iterator<Couple<Location, List<Couple<Observation, String>>>> iter=lobs.iterator();
 			while(iter.hasNext()){
 				Location accessibleNode=iter.next().getLeft();
-				boolean isNewNode=this.myMap.addNewNode(accessibleNode.getLocationId());
+				boolean isNewNode=myMap.addNewNode(accessibleNode.getLocationId());
 				
 				
 				//the node may exist, but not necessarily the edge
 				if (myPosition.getLocationId()!=accessibleNode.getLocationId()) {
-					this.myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
+					myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
 					
 					
 					if (nextNodeId==null && isNewNode) nextNodeId=accessibleNode.getLocationId();
@@ -145,9 +158,10 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 			}
 
 			//3) while openNodes is not empty, continues.
-			if (!this.myMap.hasOpenNode()){
+			if (!myMap.hasOpenNode()){
 				//Explo finished
-				System.out.println(color + agentName+" - Exploration successufully done, behaviour removed.");
+				System.out.println(color + agentName+" : Toute la carte a été explorée.");
+				((MyCollectAgent) this.myAgent).setIsMapExplored(true);
 				exit = 1;
 				finished = true;
 				return;
@@ -158,10 +172,10 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 				if (nextNodeId==null){
 					//no directly accessible openNode
 					//chose one, compute the path and take the first step.
-					nextNodeId=this.myMap.getShortestPathToClosestOpenNode(myPosition.getLocationId()).get(0);//getShortestPath(myPosition,this.openNodes.get(0)).get(0);
-					//System.out.println(this.myAgent.getLocalName()+"-- list= "+this.myMap.getOpenNodes()+"| nextNode: "+nextNode);
+					nextNodeId=myMap.getShortestPathToClosestOpenNode(myPosition.getLocationId()).get(0);//getShortestPath(myPosition,this.openNodes.get(0)).get(0);
+					//System.out.println(this.myAgent.getLocalName()+"-- list= "+myMap.getOpenNodes()+"| nextNode: "+nextNode);
 				}else {
-					//System.out.println("nextNode notNUll - "+this.myAgent.getLocalName()+"-- list= "+this.myMap.getOpenNodes()+"\n -- nextNode: "+nextNode);
+					//System.out.println("nextNode notNUll - "+this.myAgent.getLocalName()+"-- list= "+myMap.getOpenNodes()+"\n -- nextNode: "+nextNode);
 				}
 				
 			}

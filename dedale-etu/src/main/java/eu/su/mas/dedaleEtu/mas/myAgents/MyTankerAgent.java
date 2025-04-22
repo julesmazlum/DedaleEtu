@@ -12,7 +12,7 @@ public class MyTankerAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
 	private String initPosition;
-	private boolean needToMove = false;
+	private String posSender = null;
 		
 	protected void setup(){
 
@@ -86,13 +86,13 @@ public class MyTankerAgent extends AbstractDedaleAgent {
 	}
 
 
-	public boolean getNeedToMove() {
-		return needToMove;
+	public String getPosSender() {
+		return posSender;
 	}
 
 
-	public void setNeedToMove(boolean needToMove) {
-		this.needToMove = needToMove;
+	public void setPosSender(String posSender) {
+		this.posSender = posSender;
 	}
 	
 	

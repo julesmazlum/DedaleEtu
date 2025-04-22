@@ -8,7 +8,7 @@ import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyTankerAgent;
-//import global.Global;
+import global.Global;
 import jade.core.behaviours.SimpleBehaviour;
 
 
@@ -26,37 +26,43 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 
 	public void action() {
 		
-		//String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
-		//String color = Global.getColorForAgent(agentName);
+		String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
+		String color = Global.getColorForAgent(agentName);
 		
-		String initPosition = ((MyTankerAgent) this.myAgent).getInitPosition();
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		boolean needToMove = ((MyTankerAgent) this.myAgent).getNeedToMove();
+		String posSender = ((MyTankerAgent) this.myAgent).getPosSender();
 		List<String> listToMove = new ArrayList<String>();
-		
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
 		
-		if(initPosition==null) {
-			((MyTankerAgent) this.myAgent).setInitPosition(myPosition.toString());
-		}
-		
-		if(needToMove) {
+		//Si bloque un autre agent, alors doit se déplacer
+		if(posSender!=null) {
 			//Parcours des observations
 			for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
 			    Location location = locationCouple.getLeft();
-
+			    //Liste des positions accessibles
 			    listToMove.add(location.toString());
 			}
+			//On retire la position actuelle et celle de l'agent qui demande à ce qu'on se déplace
 			listToMove.remove(myPosition.toString());
-			String pos = listToMove.get((int)(Math.random() * listToMove.size()));
+			listToMove.remove(posSender);
 			
-			((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos));
-			((MyTankerAgent) this.myAgent).setNeedToMove(false);
-			
-			exit = 1;
-			finished = true;
-			return;
-			    
+			//Choix aléatoire parmis les positions restantes
+			String pos = null;
+			if(listToMove.size()==0) {
+				System.out.println(color+agentName+" : Je suis dans une impasse.");
+			}else {
+				
+				pos = listToMove.get((int)(Math.random() * listToMove.size()));
+				
+				if(((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos))) {
+					System.out.println(color+agentName+" : J'ai réussi à me déplacer pour laisser le chemin.");
+					((MyTankerAgent) this.myAgent).setPosSender(null);
+				}else {
+					System.out.println(color+agentName+" : Je n'ai pas réussi à me déplacer pour laisser le chemin.");
+				}
+				
+			}
+			((MyTankerAgent) this.myAgent).setPosSender(null);
 		}
 	
 		exit = 1;

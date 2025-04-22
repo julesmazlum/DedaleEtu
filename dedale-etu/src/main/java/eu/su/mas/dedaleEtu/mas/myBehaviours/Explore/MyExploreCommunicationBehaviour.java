@@ -10,6 +10,8 @@ import dataStructures.serializableGraph.SerializableSimpleGraph;
 import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
+import eu.su.mas.dedale.env.Observation;
+import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
@@ -43,6 +45,9 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 		this.myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
+		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
+		List<Location> listToMove = new ArrayList<>();
+		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 		
 		/*
 		 * Réception des messages
@@ -103,6 +108,53 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 			} catch (UnreadableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		}
+		
+		//Réception demande de bouger
+		MessageTemplate msgMOVE=MessageTemplate.and(
+				MessageTemplate.MatchProtocol("MOVE"),
+				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+		ACLMessage msgReceivedMOVE=this.myAgent.receive(msgMOVE);
+		Location posSender = null;
+		if (msgReceivedMOVE!=null) {
+			System.out.println(color + agentName + " : Je dois bouger et je suis pas sur un chemin précis");
+			
+			//Récupération de la position de l'agent qui demande à ce qu'on se déplace
+			try {
+				posSender = (Location) msgReceivedMOVE.getContentObject();
+			} catch (UnreadableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			//Parcours des observations
+			//Liste des positions disponibles pour qu'on se déplace
+			for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
+			    Location location = locationCouple.getLeft();
+			    if(!location.toString().equals(myPosition.toString()) && !location.toString().equals(posSender.toString())) {
+			    	listToMove.add(location);
+			    }
+			}
+			
+			//Choix aléatoire parmi les positions disponibles
+			Location pos = null;
+			
+			if(listToMove.size()==0) {
+				System.out.println(color+agentName+" : Je suis dans une impasse.");
+			}else {
+				
+				pos = listToMove.get((int)(Math.random() * listToMove.size()));
+				myMap.addNewNode(pos.getLocationId());
+	        	myMap.addEdge(myPosition.getLocationId(), pos.getLocationId());
+				
+				if(!((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos.toString()))) {
+					System.out.println(color+agentName+" : Je n'ai pas réussi à m'écarter du chemin.");
+				}else {
+					System.out.println(color+agentName+" : J'ai réussi à aller m'écarter du chemin ");
+				}
+				
 			}
 		}
 		

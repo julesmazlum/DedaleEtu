@@ -2,6 +2,8 @@ package eu.su.mas.dedaleEtu.mas.myBehaviours.Tanker;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyTankerAgent;
 import global.Global;
@@ -73,8 +75,17 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
 		ACLMessage msgReceivedMOVE=this.myAgent.receive(msgMOVE);
 		if (msgReceivedMOVE!=null) {
-			System.out.println(color + agentName + " : Je dois bouger");
-			((MyTankerAgent) this.myAgent).setNeedToMove(true);
+			Location posSender = null;
+			
+			try {
+				posSender = (Location) msgReceivedMOVE.getContentObject();
+			} catch (UnreadableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println(color + agentName + " : Je dois bouger et pas en "+posSender.toString());
+			((MyTankerAgent) this.myAgent).setPosSender(posSender.toString());
 		}
 		
 		

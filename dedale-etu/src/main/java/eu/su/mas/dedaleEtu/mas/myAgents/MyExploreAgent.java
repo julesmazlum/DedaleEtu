@@ -21,6 +21,7 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	
 	private String tanker = null;
 	private MapRepresentation myMap;
+	private MapRepresentation myMap2;
 	private Location tankLoc = null;
 	private boolean isMapExplored = false;
 	private String agentNameToSendTo = null;
@@ -165,5 +166,17 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	public void setTanker(String tanker) {
 		this.tanker = tanker;
 	}
+
+
+	public MapRepresentation getMyMap2() {
+		return myMap2;
+	}
+
+
+	public void setMyMap2(MapRepresentation myMap2) {
+		this.myMap2 = myMap2;
+	}
+	
+	
 
 }
