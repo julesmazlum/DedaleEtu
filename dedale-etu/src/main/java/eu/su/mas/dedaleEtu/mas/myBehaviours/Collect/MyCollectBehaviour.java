@@ -81,7 +81,9 @@ public class MyCollectBehaviour extends SimpleBehaviour {
     			if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
         			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
-        			chemin.remove(chemin.size()-1);
+        			if(chemin.size()!=0) {
+        				chemin.remove(chemin.size()-1);
+        			}
         			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
         			exit = 1;
         			finished = true;
@@ -95,7 +97,9 @@ public class MyCollectBehaviour extends SimpleBehaviour {
         		if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
         			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
-        			chemin.remove(chemin.size()-1);
+        			if(chemin.size()!=0) {
+        				chemin.remove(chemin.size()-1);
+        			}
         			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
         			exit = 1;
         			finished = true;

@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Tanker;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import dataStructures.tuple.Couple;
@@ -9,7 +10,9 @@ import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyTankerAgent;
 import global.Global;
+import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
 
 
 public class MyTankerBehaviour extends SimpleBehaviour {
@@ -33,14 +36,29 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 		String posSender = ((MyTankerAgent) this.myAgent).getPosSender();
 		List<String> listToMove = new ArrayList<String>();
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
+		String receiver = null;
 		
 		//Si bloque un autre agent, alors doit se déplacer
 		if(posSender!=null) {
 			//Parcours des observations
 			for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
 			    Location location = locationCouple.getLeft();
+			    List<Couple<Observation, String>> observationDetails = locationCouple.getRight();
 			    //Liste des positions accessibles
 			    listToMove.add(location.toString());
+			    
+			    if (location.toString().equals(posSender)) {
+			    	for (Couple<Observation, String> detail : observationDetails) {
+				        Observation obs = detail.getLeft();
+				        String valeur = detail.getRight();
+				        
+				        if(obs.getName().equals("AgentName")) {
+				        	receiver = valeur;
+				        	break;
+				        }
+			    	}
+			    }
+			    
 			}
 			//On retire la position actuelle et celle de l'agent qui demande à ce qu'on se déplace
 			listToMove.remove(myPosition.toString());
@@ -50,6 +68,25 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 			String pos = null;
 			if(listToMove.size()==0) {
 				System.out.println(color+agentName+" : Je suis dans une impasse.");
+				
+				// Je dis que je suis dans une impaase et j'envoie mon noeud
+				if(receiver!=null) {
+					//Envoie du noeud
+					ACLMessage msgIMPASSE = new ACLMessage(ACLMessage.INFORM);
+					msgIMPASSE.setProtocol("IMPASSE");
+					msgIMPASSE.setSender(this.myAgent.getAID());
+					msgIMPASSE.addReceiver(new AID(receiver,AID.ISLOCALNAME));
+					Location node;
+					node = myPosition;
+					try {					
+						msgIMPASSE.setContentObject(node);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					((AbstractDedaleAgent)this.myAgent).sendMessage(msgIMPASSE);
+					System.out.println(color+agentName+" : J'ai envoyé un message d'impasse.");
+				}
+				
 			}else {
 				
 				pos = listToMove.get((int)(Math.random() * listToMove.size()));

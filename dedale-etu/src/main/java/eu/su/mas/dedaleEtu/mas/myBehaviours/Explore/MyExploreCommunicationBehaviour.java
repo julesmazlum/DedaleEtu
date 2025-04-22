@@ -11,7 +11,6 @@ import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
@@ -149,13 +148,35 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 				myMap.addNewNode(pos.getLocationId());
 	        	myMap.addEdge(myPosition.getLocationId(), pos.getLocationId());
 				
-				if(!((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos.toString()))) {
+				//if(!((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos.toString()))) {
+	        	if(!Global.moveNextNode(pos.toString(), (AbstractDedaleAgent) myAgent, color, agentName)) {
 					System.out.println(color+agentName+" : Je n'ai pas réussi à m'écarter du chemin.");
 				}else {
 					System.out.println(color+agentName+" : J'ai réussi à aller m'écarter du chemin ");
 				}
 				
 			}
+		}
+		
+		//Réception IMPASSE
+		MessageTemplate msgIMPASSE=MessageTemplate.and(
+				MessageTemplate.MatchProtocol("IMPASSE"),
+				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+		ACLMessage msgReceivedIMPASSE=this.myAgent.receive(msgIMPASSE);
+		if (msgReceivedIMPASSE!=null) {
+			Location node=null;
+			try {
+				node = (Location) msgReceivedIMPASSE.getContentObject();
+				System.out.println(color + agentName+ " : J'ai reçu un noeud d'un agent dans une impasse");
+			} catch (UnreadableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			myMap.addNewNode(node.getLocationId());
+        	myMap.addEdge(myPosition.getLocationId(), node.getLocationId());
+        	myMap.addNode(node.getLocationId(),MapAttribute.closed);
+        	System.out.println(color + agentName+ " : Je l'ai ajouté à ma carte");
 		}
 		
 		//Reception données

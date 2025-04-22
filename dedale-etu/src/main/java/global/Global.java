@@ -52,12 +52,18 @@ public class Global {
 	    while (!liste.isEmpty()) {
 	    	
 	        String nextNode = liste.get(0);
+	        
+	        System.out.println(color+agentName+" : "+myAgent.getCurrentPosition()+ " : "+liste);
+	        System.out.println(color+agentName+" : "+myAgent.getCurrentPosition()+ " : "+nextNode);
+	        
 	        moved = Global.moveNextNode(nextNode, (AbstractDedaleAgent) myAgent, color, agentName);
 	        
 	        if(moved) {
 	        	liste.remove(0);
 	        }else {
-	        	move2(nextNode, liste, myAgent, color, agentName);
+	        	if(move2(nextNode, liste, myAgent, color, agentName)) {
+	        		return;
+	        	}
 	        }
 
 	        try {
@@ -69,7 +75,7 @@ public class Global {
 	}
 
 
-	public static void move2(String nextNode, List<String> liste, AbstractDedaleAgent myAgent, String color, String agentName) {
+	public static boolean move2(String nextNode, List<String> liste, AbstractDedaleAgent myAgent, String color, String agentName) {
 		//Réception demande de bouger
 		MessageTemplate msgMOVE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("MOVE"),
@@ -127,13 +133,14 @@ public class Global {
 					
 	    			List<String> nouveauChemin = myMap.getShortestPath(pos.toString(), liste.get(liste.size()-1));
 	    			move(nouveauChemin, myAgent, color, agentName);
-	    			return;
+	    			return true;
 				}else {
 					System.out.println(color+agentName+" : J'ai pas réussi à m'écarter du chemin");
 				}	
 	        	
 			}
 		}
+		return false;
 	}
 	
 	// fonction pour se déplacer au prochain noeud

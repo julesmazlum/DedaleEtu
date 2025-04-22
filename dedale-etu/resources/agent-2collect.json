@@ -37,8 +37,8 @@
 "agentName": "Daisy",
 "communicationRange": 3,
 "initialLocation": "free",
-"backPackCapacityGold": 30,
-"backPackCapacityDiamond":-1, 
+"backPackCapacityGold": -1,
+"backPackCapacityDiamond":30, 
 "detectionRadius": 0,
 "strengthExpertise": 1,
 "lockPickingExpertise":1
