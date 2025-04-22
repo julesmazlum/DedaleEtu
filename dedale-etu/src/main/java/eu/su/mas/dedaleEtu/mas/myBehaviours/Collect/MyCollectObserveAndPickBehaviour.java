@@ -58,15 +58,32 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		    //System.out.println("Location observée : " + location);
 		    
 		    if(tankLoc!=null && location.toString().equals(tankLoc.toString())) {
-		    	
-		    	if(observationDetails.size()==0) {
-		    		System.out.println(color + agentName+ " : Le tank n'est plus la...");
+		    	boolean foundTank = false;
+	    		for (Couple<Observation, String> detail : observationDetails) {
+			        String valeur = detail.getRight();
+			        if(valeur.equals(tanker)){
+			        	foundTank=true;
+			        	break;
+			        }
+	    		}
+	    		
+	    		if(!foundTank) {
+	    			System.out.println(color + agentName+ " : Le tank n'est plus la...");
 		    		((MyCollectAgent) this.myAgent).setTankLoc(null);
-		    	} 
+	    		}
 		    }
 		    
 		    if(goToTres!=null && location.toString().equals(goToTres)) {
-		    	if(observationDetails.size()==0) {
+		    	boolean foundTres = false;
+		    	for (Couple<Observation, String> detail : observationDetails) {
+			        Observation obs = detail.getLeft();
+			        if(obs==resType) {
+			        	foundTres = true;
+			        	break;
+			        }
+		    	}
+		    	
+		    	if(!foundTres) {
 		    		System.out.println(color + agentName+ " : Il n'y a plus de trésors ici finalement...");
 		    		Instant time2 = Instant.now();
 		    		
@@ -81,7 +98,6 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		        	        break;
 		        	    }
 		        	}
-		    		
 		    	}
 		    	((MyCollectAgent) this.myAgent).setGoToTres(null);
 		    }
