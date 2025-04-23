@@ -21,33 +21,43 @@ public class MyCollectShareMapBehaviour extends SimpleBehaviour{
 	
 	private static final long serialVersionUID = -568863390879327961L;
 	
-	private MapRepresentation myMap;
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
+	/* Constructeur */
 	public MyCollectShareMapBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
-		this.myMap = ((MyCollectAgent) this.myAgent).getMyMap();
-		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
+		
+		/* Gestion de la carte */
+		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent) this.myAgent).getListe_pos_ressources();
+		
+		/* Gestion des agents */
+		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
 		String receiverCARTE = ((MyCollectAgent) this.myAgent).getAgentNameToSendTo();
-		List<Serializable> message = new ArrayList<>();
 		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
 		String tanker = ((MyCollectAgent) this.myAgent).getTanker();
-
+		
+		/* Gestion du message */
+		List<Serializable> message = new ArrayList<>();
+		
+		
 		/*
 		 * Envoyer la carte à la personne observée
 		 */
 		
 		//ajout de la carte en message[0]
-		message.add((Serializable) this.myMap.getSerializableGraph());
+		message.add((Serializable) myMap.getSerializableGraph());
 		System.out.println(color + agentName+" : Je lui envoie donc toute la carte");
 		
 		//ajout de la liste de type en message[2]

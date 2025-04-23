@@ -23,31 +23,38 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
-
+	/* Constructeur */
 	public MyCollectObserveAndPickBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
+		/* Gestion de la carte */
 		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
 		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
-		String tanker = ((MyCollectAgent) this.myAgent).getTanker();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
 		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());
-		Map<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
 		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
 		String goToTres = ((MyCollectAgent) this.myAgent).getGoToTres();
+		
+		/* Gestion des agents */
+		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
+		Map<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
+		String tanker = ((MyCollectAgent) this.myAgent).getTanker();
+		
 		
 		//Parcours des observations
 		for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {

@@ -23,29 +23,34 @@ import java.time.Instant;
 public class MyExploreObserveBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
+	
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
-
+	/* Constructeur */
 	public MyExploreObserveBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyExploreAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
+		
+		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		
-		/*
-		 * Données nécéssaires
-		 */
-		
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
+		
+		/* Gestion des agents */
 		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
+		
+
 
 		//Parcours des observations
 		for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {

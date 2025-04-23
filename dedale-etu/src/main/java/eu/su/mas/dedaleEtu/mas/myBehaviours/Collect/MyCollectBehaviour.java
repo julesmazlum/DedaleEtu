@@ -21,28 +21,35 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
-
+	/* Constructeur */
 	public MyCollectBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
-		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
-		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
-		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());
-		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
-		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
-		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyCollectAgent)this.myAgent).getMyMap();
 		MapRepresentation myMap2 = ((MyCollectAgent)this.myAgent).getMyMap2();
+		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
+		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
+		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());
+		
+		/* Gestion des agents */
+		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
+		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
+		int capMax = ((MyCollectAgent) this.myAgent).getCapMax();
 		
 		
 		if(myMap==null) {
@@ -54,6 +61,9 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 		int cap = 0;
     	for (Couple<Observation, Integer> couple : items) {
             if (couple.getLeft()==resType) {
+            	if(capMax==-1) {
+            		((MyCollectAgent) this.myAgent).setCapMax(cap);
+            	}
                 cap = couple.getRight();
                 break;
             }
@@ -81,6 +91,7 @@ public class MyCollectBehaviour extends SimpleBehaviour {
     			if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
         			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
+        			System.out.println("ma pos "+myPosition.toString()+" loc tank "+tankLoc.toString()+ " chemin "+chemin);
         			if(chemin.size()!=0) {
         				chemin.remove(chemin.size()-1);
         			}
@@ -93,10 +104,11 @@ public class MyCollectBehaviour extends SimpleBehaviour {
         		}
     		}
     	}else {
-    		if(cap<=5) {
+    		if(cap<=capMax) {
         		if(tankLoc !=null) {
         			System.out.println(color+ agentName+" : Ma capacité est réduite : "+cap+" et je sais ou est le tank je vais aller le voir.");
         			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
+        			System.out.println("ma pos "+myPosition.toString()+" loc tank "+tankLoc.toString()+ " chemin "+chemin);
         			if(chemin.size()!=0) {
         				chemin.remove(chemin.size()-1);
         			}
@@ -154,9 +166,7 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 				
 				//the node may exist, but not necessarily the edge
 				if (myPosition.getLocationId()!=accessibleNode.getLocationId()) {
-					myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
-					
-					
+					myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());				
 					if (nextNodeId==null && isNewNode) nextNodeId=accessibleNode.getLocationId();
 				}
 			}
@@ -183,7 +193,6 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 				}
 				
 			}
-			
 			Global.moveNextNode(nextNodeId, (AbstractDedaleAgent) myAgent, color, agentName);
 		}
 		

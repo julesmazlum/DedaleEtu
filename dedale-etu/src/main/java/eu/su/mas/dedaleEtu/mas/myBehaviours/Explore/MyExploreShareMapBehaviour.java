@@ -23,27 +23,36 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 	
 	private static final long serialVersionUID = -568863390879327961L;
 	
-	private MapRepresentation myMap;
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
+	/* Constructeur */
 	public MyExploreShareMapBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyExploreAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
-		this.myMap = ((MyExploreAgent) this.myAgent).getMyMap();
-		HashMap<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
-		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
+		
+		/* Gestion de la carte */
+		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
+		
+		/* Gestion des agents */
+		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
+		HashMap<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
 		String receiverCARTE = ((MyExploreAgent) this.myAgent).getAgentNameToSendTo();
-		List<Serializable> message = new ArrayList<>();
 		Location tankLoc = ((MyExploreAgent) this.myAgent).getTankLoc();
 		String tanker = ((MyExploreAgent) this.myAgent).getTanker();
+		
+		/* Gestion des messages */
+		List<Serializable> message = new ArrayList<>();
 
 		/*
 		 * Envoyer la carte à la personne observée
@@ -65,7 +74,7 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 		}
 		if(agent_types.get(receiverCARTE).equals("agentCollect")) {
 			System.out.println(color + agentName+" : "+receiverCARTE+" est un agent collect");
-			message.add((Serializable) this.myMap.getSerializableGraph());
+			message.add((Serializable) myMap.getSerializableGraph());
 			System.out.println(color + agentName+" : Je lui envoie donc toute la carte");
 		}
 		

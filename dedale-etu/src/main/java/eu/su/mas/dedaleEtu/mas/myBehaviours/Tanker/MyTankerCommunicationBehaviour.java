@@ -19,18 +19,22 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
+	/* Constructeur */
 	public MyTankerCommunicationBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
-
+	/* Behaviour */
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
+		
 		
 		//Réception demande de type
 		MessageTemplate msgASKTYPE=MessageTemplate.and(
@@ -85,7 +89,7 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 			}
 			
 			System.out.println(color + agentName + " : Je dois bouger et pas en "+posSender.toString());
-			((MyTankerAgent) this.myAgent).setPosSender(posSender.toString());
+			((MyTankerAgent) this.myAgent).setPosSender(posSender);
 		}
 		
 		

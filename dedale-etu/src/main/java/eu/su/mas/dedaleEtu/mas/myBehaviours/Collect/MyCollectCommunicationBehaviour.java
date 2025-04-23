@@ -28,26 +28,39 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
-	private MapRepresentation myMap;
 	private int exit;
 
+	/* Constructeur */
 	public MyCollectCommunicationBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
-
+	/* Behaviour */
 	@SuppressWarnings("unchecked")
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
-		this.myMap = ((MyCollectAgent) this.myAgent).getMyMap();
+		
+		/* Gestion de la carte */
+		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
+		MapRepresentation myMap2 = ((MyCollectAgent) this.myAgent).getMyMap2();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
-		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
 		List<Location> listToMove = new ArrayList<>();
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		
+		/* Gestion des agents */
+		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
+		
+		
+		/*
+		 * Réception des messages
+		 */
+		
 		
 		//Réception du type
 		MessageTemplate msgREPLYTYPE2=MessageTemplate.and(
@@ -162,18 +175,25 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
 		ACLMessage msgReceivedIMPASSE=this.myAgent.receive(msgIMPASSE);
 		if (msgReceivedIMPASSE!=null) {
-			Location node=null;
+			ArrayList<Location> node=null;
 			try {
-				node = (Location) msgReceivedIMPASSE.getContentObject();
+				node = (ArrayList<Location>) msgReceivedIMPASSE.getContentObject();
 				System.out.println(color + agentName+ " : J'ai reçu un noeud d'un agent dans une impasse");
 			} catch (UnreadableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			myMap.addNewNode(node.getLocationId());
-        	myMap.addEdge(myPosition.getLocationId(), node.getLocationId());
-        	myMap.addNode(node.getLocationId(),MapAttribute.closed);
+			myMap.addNewNode(node.get(0).getLocationId());
+			myMap.addNewNode(node.get(1).getLocationId());
+        	myMap.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
+        	myMap.addNode(node.get(0).getLocationId(),MapAttribute.closed);
+        	if(myMap2!=null) {
+        		myMap2.addNewNode(node.get(0).getLocationId());
+    			myMap2.addNewNode(node.get(1).getLocationId());
+            	myMap2.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
+            	myMap2.addNode(node.get(0).getLocationId(),MapAttribute.closed);
+        	}
         	System.out.println(color + agentName+ " : Je l'ai ajouté à ma carte");
 		}
 		
@@ -196,7 +216,7 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 		
 		if(s!=null) {
 			//s[0] : carte
-			this.myMap.mergeMap((SerializableSimpleGraph<String, MapAttribute>) s.get(0));
+			myMap.mergeMap((SerializableSimpleGraph<String, MapAttribute>) s.get(0));
 			System.out.println(color + agentName+" : J'ai reçu la carte.");
 			
 			//s[1] : liste_pos_ressources
@@ -242,6 +262,7 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
        return exit;
     }
 	
+	// fonction pour fusionner les données en gardant la plus récente
 	public HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> mergeRessources(
 		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> localListe,
 		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> receivedListe) {

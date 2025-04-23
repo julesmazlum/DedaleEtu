@@ -2,6 +2,8 @@ package eu.su.mas.dedaleEtu.mas.myAgents;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.platformManagment.*;
 import eu.su.mas.dedaleEtu.mas.myBehaviours.Tanker.MyTankerFSMBehaviour;
@@ -11,9 +13,12 @@ import jade.core.behaviours.Behaviour;
 public class MyTankerAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
-	private String initPosition;
-	private String posSender = null;
+	
+	/* Gestion déplacement */
+	
+	private Location posSender = null;
 		
+	
 	protected void setup(){
 
 		super.setup();
@@ -75,23 +80,12 @@ public class MyTankerAgent extends AbstractDedaleAgent {
 		//System.out.println("I migrated");
 	}
 
-
-	public String getInitPosition() {
-		return initPosition;
-	}
-
-
-	public void setInitPosition(String initPosition) {
-		this.initPosition = initPosition;
-	}
-
-
-	public String getPosSender() {
+	public Location getPosSender() {
 		return posSender;
 	}
 
 
-	public void setPosSender(String posSender) {
+	public void setPosSender(Location posSender) {
 		this.posSender = posSender;
 	}
 	

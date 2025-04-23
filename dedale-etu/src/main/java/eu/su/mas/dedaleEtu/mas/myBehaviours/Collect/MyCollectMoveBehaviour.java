@@ -18,37 +18,36 @@ public class MyCollectMoveBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
-
+	/* Constructeur */
 	public MyCollectMoveBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@Override
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
-		MapRepresentation map = ((MyCollectAgent) this.myAgent).getMyMap();
 		String color = Global.getColorForAgent(agentName);
+		
+		/* Gestion de la carte */
+		MapRepresentation map = ((MyCollectAgent) this.myAgent).getMyMap();
 		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
 		Location myPosition =((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
-		
-		
 		ArrayList<Tuple3<String, Integer, Instant>> listMyType = liste_pos_ressources.get(resType.toString());
+		
 		if(resType.toString().equals("Any")) {
 			listMyType = liste_pos_ressources.get("Gold");
 			listMyType.addAll(liste_pos_ressources.get("Diamond"));
 		}
-		/*
-		List<String> shortestPath = map.getShortestPath(myPosition.toString(), listMyType.get(0).getFirst());
+		
 
-		if (shortestPath == null || shortestPath.isEmpty()) {
-		    System.out.println("⚠️ Impossible de trouver un chemin vers le premier élément " + listMyType.get(0));
-		    return;
-		}*/
 		int shortestpathlen = 100000;
 		List<String> shortestPath = null;
 

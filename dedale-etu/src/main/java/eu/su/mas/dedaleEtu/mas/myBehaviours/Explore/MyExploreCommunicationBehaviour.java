@@ -28,25 +28,34 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
-	private MapRepresentation myMap;
 	private int exit;
 
+	/* Constructeur */
 	public MyExploreCommunicationBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	@SuppressWarnings({ "unchecked" })
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyExploreAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
-		this.myMap = ((MyExploreAgent) this.myAgent).getMyMap();
-		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
-		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
-		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
-		List<Location> listToMove = new ArrayList<>();
+		
+		/* Gestion de la carte */
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
+		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
+		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
+		MapRepresentation myMap2 = ((MyExploreAgent) this.myAgent).getMyMap2();
+		List<Location> listToMove = new ArrayList<>();
+		
+		/* Gestion des agents */
+		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
+		
 		
 		/*
 		 * Réception des messages
@@ -164,18 +173,25 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
 		ACLMessage msgReceivedIMPASSE=this.myAgent.receive(msgIMPASSE);
 		if (msgReceivedIMPASSE!=null) {
-			Location node=null;
+			ArrayList<Location> node=null;
 			try {
-				node = (Location) msgReceivedIMPASSE.getContentObject();
+				node = (ArrayList<Location>) msgReceivedIMPASSE.getContentObject();
 				System.out.println(color + agentName+ " : J'ai reçu un noeud d'un agent dans une impasse");
 			} catch (UnreadableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			myMap.addNewNode(node.getLocationId());
-        	myMap.addEdge(myPosition.getLocationId(), node.getLocationId());
-        	myMap.addNode(node.getLocationId(),MapAttribute.closed);
+			myMap.addNewNode(node.get(0).getLocationId());
+			myMap.addNewNode(node.get(1).getLocationId());
+        	myMap.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
+        	myMap.addNode(node.get(0).getLocationId(),MapAttribute.closed);
+        	if(myMap2!=null) {
+        		myMap2.addNewNode(node.get(0).getLocationId());
+    			myMap2.addNewNode(node.get(1).getLocationId());
+            	myMap2.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
+            	myMap2.addNode(node.get(0).getLocationId(),MapAttribute.closed);
+        	}
         	System.out.println(color + agentName+ " : Je l'ai ajouté à ma carte");
 		}
 		
@@ -197,7 +213,7 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 		
 		if(s!=null) {
 			//s[0] : carte
-			this.myMap.mergeMap((SerializableSimpleGraph<String, MapAttribute>) s.get(0));
+			myMap.mergeMap((SerializableSimpleGraph<String, MapAttribute>) s.get(0));
 			System.out.println(color + agentName+" : J'ai reçu la carte.");
 			
 			//s[1] : liste_pos_ressources
@@ -227,7 +243,6 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 		}
 		
 		
-		
 		exit = 1;
 		finished = true;
 		return;
@@ -244,6 +259,7 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
        return exit;
     }
 	
+	// fonction fusionner des données en gardant les plus récentes
 	public HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> mergeRessources(
 		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> localListe,
 		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> receivedListe) {

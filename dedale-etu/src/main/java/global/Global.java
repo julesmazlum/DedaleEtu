@@ -19,7 +19,7 @@ import jade.lang.acl.UnreadableException;
 public class Global {
 	
 	// temps de déplacement
-	public static int temps = 250;
+	public static int temps = 100;
 	
 	// définir les codes de couleur ansi
 	public static final String RESET = "\u001B[0m";
@@ -52,9 +52,6 @@ public class Global {
 	    while (!liste.isEmpty()) {
 	    	
 	        String nextNode = liste.get(0);
-	        
-	        System.out.println(color+agentName+" : "+myAgent.getCurrentPosition()+ " : "+liste);
-	        System.out.println(color+agentName+" : "+myAgent.getCurrentPosition()+ " : "+nextNode);
 	        
 	        moved = Global.moveNextNode(nextNode, (AbstractDedaleAgent) myAgent, color, agentName);
 	        

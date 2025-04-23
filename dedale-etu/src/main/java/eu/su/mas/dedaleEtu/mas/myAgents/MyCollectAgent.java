@@ -19,17 +19,25 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
 	
-	private String tanker = null;
-	private MapRepresentation myMap;
-	private MapRepresentation myMap2;
-	private Location tankLoc = null;
-	private boolean isMapExplored = false;
-	private String agentNameToSendTo = null;
-	private HashMap<String, String> agent_types = new HashMap<>();
+	/* Gestion de la carte et ressources */
+	
 	private Map<String, MapRepresentation> liste_agent_map = new HashMap<>();
 	private HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = new HashMap<>();
+	
 	private String goToTres = null;
-
+	private int capMax = -1;
+	
+	private MapRepresentation myMap;
+	private MapRepresentation myMap2;
+	private boolean isMapExplored = false;
+	private String agentNameToSendTo = null;
+	
+	/* Gestion des agents */
+	
+	private HashMap<String, String> agent_types = new HashMap<>();
+	private String tanker = null;
+	private Location tankLoc = null;
+	
 
 	protected void setup(){
 
@@ -186,6 +194,17 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	public void setMyMap2(MapRepresentation myMap2) {
 		this.myMap2 = myMap2;
 	}
+
+
+	public int getCapMax() {
+		return capMax;
+	}
+
+
+	public void setCapMax(int capMax) {
+		this.capMax = capMax;
+	}
+	
 	
 	
 	

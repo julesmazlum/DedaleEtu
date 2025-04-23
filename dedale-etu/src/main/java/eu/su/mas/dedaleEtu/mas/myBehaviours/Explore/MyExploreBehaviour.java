@@ -18,17 +18,23 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 
+	/* Constructeur */
 	public MyExploreBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
+	/* Behaviour */
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyExploreAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
+		
+		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		MapRepresentation myMap2 = ((MyExploreAgent) this.myAgent).getMyMap2();
 		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
@@ -39,12 +45,12 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 			((MyExploreAgent) this.myAgent).setMyMap(myMap);
 		}
 		
-		
-		
 		/*
 		 * Exploration de la carte 
 		 */
 		
+		
+		/* Exploration virtuelle si exploration initialle finie */
 		if(((MyExploreAgent) this.myAgent).getIsMapExplored()) {
 			System.out.println(color + agentName+" : On recommence une exploration virtuelle");
 			myMap2 = new MapRepresentation(false);
@@ -55,6 +61,8 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 		if(myMap2!=null) {
 			myMap = myMap2;
 		}
+		
+		
 		
 		//0) Retrieve the current position
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
@@ -121,13 +129,12 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				}
 				
 			}
-			
+			System.out.println(color + agentName+" : J'explore");
 			Global.moveNextNode(nextNodeId, (AbstractDedaleAgent) myAgent, color, agentName);
 		}
 			
 		exit = 1;
 		finished = true;
-		System.out.println(color + agentName+" : J'explore");
 		return;
 	}
 	

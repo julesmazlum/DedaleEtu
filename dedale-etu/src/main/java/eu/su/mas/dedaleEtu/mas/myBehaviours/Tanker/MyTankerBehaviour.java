@@ -1,6 +1,7 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Tanker;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import dataStructures.tuple.Couple;
@@ -19,24 +20,31 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
+	/* Gestion FSM */
 	private boolean finished = false;
 	private int exit;
 	
+	/* Constructeur */
 	public MyTankerBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
-
+	/* Behaviour */
 	public void action() {
 		
+		/* Affichage */
 		String agentName = ((MyTankerAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
+		/* Gestion de la carte */
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		String posSender = ((MyTankerAgent) this.myAgent).getPosSender();
 		List<String> listToMove = new ArrayList<String>();
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
+		
+		/* Gestion des agents */
+		Location posSender = ((MyTankerAgent) this.myAgent).getPosSender();
 		String receiver = null;
+		
 		
 		//Si bloque un autre agent, alors doit se déplacer
 		if(posSender!=null) {
@@ -47,7 +55,7 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 			    //Liste des positions accessibles
 			    listToMove.add(location.toString());
 			    
-			    if (location.toString().equals(posSender)) {
+			    if (location.toString().equals(posSender.toString())) {
 			    	for (Couple<Observation, String> detail : observationDetails) {
 				        Observation obs = detail.getLeft();
 				        String valeur = detail.getRight();
@@ -62,7 +70,7 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 			}
 			//On retire la position actuelle et celle de l'agent qui demande à ce qu'on se déplace
 			listToMove.remove(myPosition.toString());
-			listToMove.remove(posSender);
+			listToMove.remove(posSender.toString());
 			
 			//Choix aléatoire parmis les positions restantes
 			String pos = null;
@@ -76,10 +84,11 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 					msgIMPASSE.setProtocol("IMPASSE");
 					msgIMPASSE.setSender(this.myAgent.getAID());
 					msgIMPASSE.addReceiver(new AID(receiver,AID.ISLOCALNAME));
-					Location node;
-					node = myPosition;
+					ArrayList<Location> node = new ArrayList<Location>();
+					node.add(myPosition);
+					node.add(posSender);
 					try {					
-						msgIMPASSE.setContentObject(node);
+						msgIMPASSE.setContentObject((Serializable) node);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
