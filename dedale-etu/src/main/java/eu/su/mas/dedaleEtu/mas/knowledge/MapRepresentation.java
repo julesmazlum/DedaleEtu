@@ -6,7 +6,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.EdgeRejectedException;
@@ -15,11 +17,20 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
+import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.Viewer.CloseFramePolicy;
+
 import dataStructures.serializableGraph.*;
 import dataStructures.tuple.Couple;
+import eu.su.mas.dedale.mas.agent.knowledge.MapRepresentation.MapAttribute;
 import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 /**
  * This simple topology representation only deals with the graph, not its content.</br>
@@ -37,7 +48,7 @@ public class MapRepresentation implements Serializable {
 	 */
 
 	public enum MapAttribute {	
-		agent,open,closed, received;
+		agent,open,closed;
 
 	}
 
@@ -48,42 +59,48 @@ public class MapRepresentation implements Serializable {
 	 ********************************/
 
 	private String defaultNodeStyle= "node {"+"fill-color: black;"+" size-mode:fit;text-alignment:under; text-size:14;text-color:white;text-background-mode:rounded-box;text-background-color:black;}";
-	private String nodeStyle_open = "node.agent {"+"fill-color: forestgreen;"+"}";
-	private String nodeStyle_agent = "node.open {"+"fill-color: blue;"+"}";
-	private String nodeStyle_received = "node.received {" + "fill-color: deeppink;" + "}";
-	private String nodeStyle = defaultNodeStyle + nodeStyle_agent + nodeStyle_open + nodeStyle_received;
-
+	private String nodeStyle_open = "node.open {"+"fill-color: forestgreen;"+"}";
+	private String nodeStyle_agent = "node.agent {"+"fill-color: blue;"+"}";
+	private String nodeStyle=defaultNodeStyle+nodeStyle_agent+nodeStyle_open;
 
 	private Graph g; //data structure non serializable
 	private Viewer viewer; //ref to the display,  non serializable
 	private Integer nbEdges;//used to generate the edges ids
+	private String agentName;//name of the agent the map belongs to
 
 	private SerializableSimpleGraph<String, MapAttribute> sg;//used as a temporary dataStructure during migration
 	
+	/**
+	 * @deprecated Prefer the use of MapRepresentation(String agentName)
+	 */
+	@Deprecated 
 	public MapRepresentation() {
+
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
 		this.g= new SingleGraph("My world vision");
 		this.g.setAttribute("ui.stylesheet",nodeStyle);
 
 		Platform.runLater(() -> {
-			openGui();
+			//openGui();
+			openGui4();
 		});
 		//this.viewer = this.g.display();
 
 		this.nbEdges=0;
 	}
-
-
+	
 	public MapRepresentation(boolean display) {
+
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
 		this.g= new SingleGraph("My world vision");
 		this.g.setAttribute("ui.stylesheet",nodeStyle);
-
+		
 		if(display) {
 			Platform.runLater(() -> {
-				openGui();
+				//openGui();
+				openGui4();
 			});
 		}
 		//this.viewer = this.g.display();
@@ -91,6 +108,25 @@ public class MapRepresentation implements Serializable {
 		this.nbEdges=0;
 	}
 
+
+	/**
+	 * @param agentName Name of the agent this representation belongs too
+	 */
+	public MapRepresentation(String agentName) {
+		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		System.setProperty("org.graphstream.ui", "javafx");
+		this.g= new SingleGraph("My world vision");
+		this.g.setAttribute("ui.stylesheet",nodeStyle);
+		this.agentName=agentName;
+
+		Platform.runLater(() -> {
+			//openGui();
+			openGui4();
+			
+		});
+		this.nbEdges=0;
+	}
+	
 	/**
 	 * Add or replace a node and its attribute 
 	 * @param id unique identifier of the node
@@ -154,12 +190,6 @@ public class MapRepresentation implements Serializable {
 
 		Dijkstra dijkstra = new Dijkstra();//number of edge
 		dijkstra.init(g);
-		/*
-		if(g.getNode(idFrom)==null || g.getNode(idTo) == null) {
-			System.out.println("node null");
-			return shortestPath;
-		}
-		*/
 		dijkstra.setSource(g.getNode(idFrom));
 		dijkstra.compute();//compute the distance to all nodes from idFrom
 		List<Node> path=dijkstra.getPath(g.getNode(idTo)).getNodePath(); //the shortest path from idFrom to idTo
@@ -175,25 +205,6 @@ public class MapRepresentation implements Serializable {
 		}
 		return shortestPath;
 	}
-	
-	public List<String> getShortestPathToFarthestOpenNode(String myPosition) {
-	    // 1) Récupérer tous les nœuds ouverts
-	    List<String> openNodes = getOpenNodes();
-
-	    // 2) Sélectionner le plus éloigné
-	    List<Couple<String, Integer>> lc =
-	            openNodes.stream()
-	                    .map(on -> (getShortestPath(myPosition, on) != null)
-	                            ? new Couple<>(on, getShortestPath(myPosition, on).size())
-	                            : new Couple<>(on, Integer.MIN_VALUE)) // Certains nœuds peuvent être inaccessibles
-	                    .collect(Collectors.toList());
-
-	    Optional<Couple<String, Integer>> farthest = lc.stream().max(Comparator.comparing(Couple::getRight));
-
-	    // 3) Retourner le chemin vers le plus éloigné
-	    return farthest.isPresent() ? getShortestPath(myPosition, farthest.get().getLeft()) : null;
-	}
-
 
 	public List<String> getShortestPathToClosestOpenNode(String myPosition) {
 		//1) Get all openNodes
@@ -307,6 +318,37 @@ public class MapRepresentation implements Serializable {
 		g.display();
 	}
 
+	/**
+	 * Method called after a migration to reopen default GUI component
+	 */
+	private synchronized void openGui4() {
+
+		Stage primaryStage = new Stage();
+		StackPane newRoot = new StackPane();
+
+		AnchorPane ap= new AnchorPane();
+
+		FxViewer viewer = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+		g.setAttribute("ui.antialias");
+		g.setAttribute("ui.quality");
+		viewer.enableAutoLayout();
+		viewer.setCloseFramePolicy(FxViewer.CloseFramePolicy.CLOSE_VIEWER);
+		//viewer.addDefaultView(true);
+
+		//g.display();
+
+		FxViewPanel panel = (FxViewPanel)viewer.addDefaultView(false, new FxGraphRenderer());
+		ap.getChildren().add(panel);
+		newRoot.getChildren().add(ap);
+		primaryStage.setTitle(this.agentName);
+
+		Scene scene = new Scene(newRoot, 800, 800);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+
+	}
+	
 	public void mergeMap(SerializableSimpleGraph<String, MapAttribute> sgreceived) {
 		//System.out.println("You should decide what you want to save and how");
 		//System.out.println("We currently blindy add the topology");
@@ -323,12 +365,8 @@ public class MapRepresentation implements Serializable {
 				//System.out.println("Already in"+n.getNodeId());
 			}
 			if (!alreadyIn) {
-			    newnode.setAttribute("ui.label", newnode.getId());
-			    
-			    // si tu veux mettre en rose juste pour le style, sans perdre l'info d'origine
-			    String originAttr = n.getNodeContent().toString();
-			    newnode.setAttribute("originalAttr", originAttr);
-			    newnode.setAttribute("ui.class", MapAttribute.received.toString());
+				newnode.setAttribute("ui.label", newnode.getId());
+				newnode.setAttribute("ui.class", n.getNodeContent().toString());
 			}else{
 				newnode=this.g.getNode(n.getNodeId());
 				//3 check its attribute. If it is below the one received, update it.
@@ -356,7 +394,7 @@ public class MapRepresentation implements Serializable {
 				.filter(n -> n.getAttribute("ui.class")==MapAttribute.open.toString())
 				.findAny()).isPresent();
 	}
-	
+
 
 
 

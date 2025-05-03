@@ -49,6 +49,7 @@ public class MyExploreObserveBehaviour extends SimpleBehaviour {
 		
 		/* Gestion des agents */
 		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
+		Tuple3<String, Location, Instant> tanker = ((MyExploreAgent) this.myAgent).getTanker();
 		
 
 
@@ -104,7 +105,9 @@ public class MyExploreObserveBehaviour extends SimpleBehaviour {
 		        	
 		        	if(agent_types.containsKey(valeur) && "agentTanker".equals(agent_types.get(valeur))){
 			        	//Alors j'enregistre sa position et j'ajoute son noeud dans la carte
-			        	((MyExploreAgent) this.myAgent).setTankLoc(location);
+		        		Tuple3<String, Location, Instant> newtanker = new Tuple3<>(tanker.getFirst(), location, Instant.now());
+		        		((MyExploreAgent) this.myAgent).setTanker(newtanker);
+		        		
 			        	myMap.addNewNode(location.getLocationId());
 			        	myMap.addEdge(myPosition.getLocationId(), location.getLocationId());
 			        	System.out.println(color + agentName+" : J'ai rencontré "+valeur+" j'ai ajouté sa position.");

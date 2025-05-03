@@ -51,10 +51,8 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		String goToTres = ((MyCollectAgent) this.myAgent).getGoToTres();
 		
 		/* Gestion des agents */
-		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
 		Map<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
-		String tanker = ((MyCollectAgent) this.myAgent).getTanker();
-		
+		Tuple3<String, Location, Instant> tanker = ((MyCollectAgent) this.myAgent).getTanker();
 		
 		//Parcours des observations
 		for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
@@ -64,7 +62,7 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		    // afficher la location observée
 		    //System.out.println("Location observée : " + location);
 		    
-		    if(tankLoc!=null && location.toString().equals(tankLoc.toString())) {
+		    if(tanker.getSecond()!=null && location.toString().equals(tanker.getSecond().toString())) {
 		    	boolean foundTank = false;
 	    		for (Couple<Observation, String> detail : observationDetails) {
 			        String valeur = detail.getRight();
@@ -76,7 +74,8 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 	    		
 	    		if(!foundTank) {
 	    			System.out.println(color + agentName+ " : Le tank n'est plus la...");
-		    		((MyCollectAgent) this.myAgent).setTankLoc(null);
+	    			Tuple3<String, Location, Instant> newTanker = new Tuple3<>(tanker.getFirst(), null, Instant.now());
+		    		((MyCollectAgent) this.myAgent).setTanker(newTanker);
 	    		}
 		    }
 		    
@@ -151,8 +150,10 @@ public class MyCollectObserveAndPickBehaviour extends SimpleBehaviour {
 		        }
 		        
 		        //si j'ai le nom du tanker et je rencontre tank
-		        if(tanker!=null && valeur!= null && valeur.equals(tanker)) {
-		        	((MyCollectAgent) this.myAgent).setTankLoc(location);
+		        if(tanker!=null && valeur!= null && valeur.equals(tanker.getFirst())) {
+		        	Tuple3<String, Location, Instant> newtanker = new Tuple3<>(tanker.getFirst(), location, Instant.now());
+	        		((MyCollectAgent) this.myAgent).setTanker(newtanker);
+	        		
 		        	myMap.addNewNode(location.getLocationId());
 		        	myMap.addEdge(myPosition.getLocationId(), location.getLocationId());
 		        	System.out.println(color + agentName+" : J'ai rencontré "+valeur+" est le tanker. j'ai maj sa position.");

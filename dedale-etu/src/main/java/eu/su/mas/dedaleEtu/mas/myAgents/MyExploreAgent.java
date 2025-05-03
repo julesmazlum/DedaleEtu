@@ -27,13 +27,13 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	private MapRepresentation myMap;
 	private MapRepresentation myMap2;
 	private boolean isMapExplored = false;
+	private boolean isInitialMapExplored = false;
 	private String agentNameToSendTo = null;
 	
 	/* Gestion des agents */
 	
 	private HashMap<String, String> agent_types = new HashMap<>();
-	private String tanker = null;
-	private Location tankLoc = null;
+	private Tuple3<String, Location, Instant> tanker = new Tuple3<>(null, null, Instant.now());
 	
 	
 	protected void setup(){
@@ -124,17 +124,6 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 		this.liste_agent_map = liste_agent_map;
 	}
 
-
-	public Location getTankLoc() {
-		return tankLoc;
-	}
-
-
-	public void setTankLoc(Location tankLoc) {
-		this.tankLoc = tankLoc;
-	}
-
-
 	public void setIsMapExplored(boolean isMapExplored) {
 		this.isMapExplored = isMapExplored;
 	}
@@ -163,16 +152,6 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	}
 
 
-	public String getTanker() {
-		return tanker;
-	}
-
-
-	public void setTanker(String tanker) {
-		this.tanker = tanker;
-	}
-
-
 	public MapRepresentation getMyMap2() {
 		return myMap2;
 	}
@@ -181,6 +160,28 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	public void setMyMap2(MapRepresentation myMap2) {
 		this.myMap2 = myMap2;
 	}
+
+
+	public boolean getIsInitialMapExplored() {
+		return isInitialMapExplored;
+	}
+
+
+	public void setIsInitialMapExplored(boolean isInitialMapExplored) {
+		this.isInitialMapExplored = isInitialMapExplored;
+	}
+
+
+	public Tuple3<String, Location, Instant> getTanker() {
+		return tanker;
+	}
+
+
+	public void setTanker(Tuple3<String, Location, Instant> tanker) {
+		this.tanker = tanker;
+	}
+	
+	
 	
 	
 

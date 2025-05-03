@@ -38,10 +38,10 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		MapRepresentation myMap2 = ((MyExploreAgent) this.myAgent).getMyMap2();
 		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
-
+		boolean IsInitialMapExplored = ((MyExploreAgent) this.myAgent).getIsInitialMapExplored();
 
 		if(myMap==null) {
-			myMap= new MapRepresentation();
+			myMap= new MapRepresentation(agentName);
 			((MyExploreAgent) this.myAgent).setMyMap(myMap);
 		}
 		
@@ -87,20 +87,24 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				Location accessibleNode=iter.next().getLeft();
 				boolean isNewNode=myMap.addNewNode(accessibleNode.getLocationId());
 				
-				// On ajoute également dans le dictionnaire pour chaque agent
-				for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
-				    MapRepresentation value = entry.getValue();
-				    value.addNewNode(accessibleNode.getLocationId());
+				if(isNewNode && !IsInitialMapExplored) {
+					// On ajoute également dans le dictionnaire pour chaque agent
+					for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
+					    MapRepresentation value = entry.getValue();
+					    value.addNewNode(accessibleNode.getLocationId());
+					}
 				}
 				
 				//the node may exist, but not necessarily the edge
 				if (myPosition.getLocationId()!=accessibleNode.getLocationId()) {
 					myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
 					
-					// On ajoute également dans le dictionnaire pour chaque agent
-					for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
-					    MapRepresentation value = entry.getValue();
-					    value.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
+					if(isNewNode && !IsInitialMapExplored) {
+						// On ajoute également dans le dictionnaire pour chaque agent
+						for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
+						    MapRepresentation value = entry.getValue();
+						    value.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
+						}
 					}
 					
 					if (nextNodeId==null && isNewNode) nextNodeId=accessibleNode.getLocationId();
@@ -112,6 +116,7 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				//Explo finished
 				System.out.println(color + agentName+" : Toute la carte a été explorée.");
 				((MyExploreAgent) this.myAgent).setIsMapExplored(true);
+				((MyExploreAgent) this.myAgent).setIsInitialMapExplored(true);
 				exit = 1;
 				finished = true;
 				return;

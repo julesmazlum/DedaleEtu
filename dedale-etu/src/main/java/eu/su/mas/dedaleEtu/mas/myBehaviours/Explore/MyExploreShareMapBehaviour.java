@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -48,8 +46,7 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
 		HashMap<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
 		String receiverCARTE = ((MyExploreAgent) this.myAgent).getAgentNameToSendTo();
-		Location tankLoc = ((MyExploreAgent) this.myAgent).getTankLoc();
-		String tanker = ((MyExploreAgent) this.myAgent).getTanker();
+		Tuple3<String, Location, Instant> tanker = ((MyExploreAgent) this.myAgent).getTanker();
 		
 		/* Gestion des messages */
 		List<Serializable> message = new ArrayList<>();
@@ -78,20 +75,19 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 			System.out.println(color + agentName+" : Je lui envoie donc toute la carte");
 		}
 		
-		//ajout de la liste de type en message[2]
+		//ajout de la liste de type en message[1]
 		message.add(liste_pos_ressources);
-		
-		//message[3]
-		message.add(agent_types);
-		
 		System.out.println(color + agentName+" : J'envoie également la positions des ressources");
 		
+		//message[2]
+		message.add(agent_types);
+		System.out.println(color + agentName+" : J'envoie également le type des agents");
+		
+		
 		//ajout de tankLoc en message[3]
-		if(tankLoc!=null) {
-			Couple<Location, String> tank = new Couple<>(tankLoc, tanker);
-			System.out.println(color + agentName+" : J'ai la position du tank je lui envoie : " + tankLoc);
-			System.out.println(color + agentName+" : J'ai le nom du tank je lui envoie : "+ tanker);
-			message.add(tank);
+		if(tanker.getSecond()!=null) {
+			System.out.println(color + agentName+" : J'ai la position du tank je lui envoie : " + tanker.getSecond());
+			message.add(tanker);
 		}
 		
 		

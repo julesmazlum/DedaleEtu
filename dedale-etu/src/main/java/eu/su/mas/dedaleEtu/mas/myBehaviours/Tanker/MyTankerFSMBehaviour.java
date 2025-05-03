@@ -8,25 +8,25 @@ public class MyTankerFSMBehaviour extends FSMBehaviour {
 
     private static final long serialVersionUID = 1L;
     
-	private static final String STATE_EXPLORE = "Explore";
+	private static final String STATE_TANK = "Tank";
 	private static final String STATE_COM = "Communication";
 
 
     public MyTankerFSMBehaviour(final AbstractDedaleAgent myagent) {
         // créer les comportements
     	SimpleBehaviour communication = new MyTankerCommunicationBehaviour(myagent);
-        SimpleBehaviour explore = new MyTankerBehaviour(myagent);
+        SimpleBehaviour tank = new MyTankerBehaviour(myagent);
         
 
 
         // ajouter les états à la machine
         registerFirstState(communication, STATE_COM);
-        registerState(explore, STATE_EXPLORE);
+        registerState(tank, STATE_TANK);
 
 
         // définir les transitions
-        registerTransition(STATE_COM, STATE_EXPLORE, 1);
-        registerTransition(STATE_EXPLORE, STATE_COM, 1);
+        registerTransition(STATE_COM, STATE_TANK, 1);
+        registerTransition(STATE_TANK, STATE_COM, 1);
 
 
 

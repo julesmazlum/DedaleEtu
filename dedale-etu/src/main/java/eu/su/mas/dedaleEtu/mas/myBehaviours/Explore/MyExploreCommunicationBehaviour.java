@@ -55,6 +55,7 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 		
 		/* Gestion des agents */
 		Map<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
+		Tuple3<String, Location, Instant> tanker = ((MyExploreAgent) this.myAgent).getTanker();
 		
 		
 		/*
@@ -77,7 +78,8 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 			}
 			agent_types.put(sltype2.get(0), sltype2.get(1));
 			if(sltype2.get(1).equals("agentTanker")) {
-				((MyExploreAgent) this.myAgent).setTanker(sltype2.get(0));
+				Tuple3<String, Location, Instant> newTanker = new Tuple3<>(sltype2.get(0), null, null);
+				((MyExploreAgent) this.myAgent).setTanker(newTanker);
 			}
 			System.out.println(color + agentName+ " : Je l'ai ajouté au dico : "+agent_types);			
 		}
@@ -234,10 +236,11 @@ public class MyExploreCommunicationBehaviour extends SimpleBehaviour {
 			
 			//s[3] : couple<pos,nom>
 			if(s.size()>3) {
-				Couple<Location, String> tank = (Couple<Location, String>) s.get(3);
-				((MyExploreAgent) this.myAgent).setTankLoc((Location) tank.getLeft());
-				((MyExploreAgent) this.myAgent).setTanker(tank.getRight());
-				System.out.println(color + agentName+" : J'ai reçu la position du tank et son nom : "+tank.getLeft()+ " "+tank.getRight());
+				Tuple3<String, Location, Instant> tankerReceived = (Tuple3<String, Location, Instant>) s.get(3);
+				if(tanker.getThird()==null || tankerReceived.getThird().isAfter(tanker.getThird())) {
+					((MyExploreAgent) this.myAgent).setTanker(tankerReceived);
+				}
+				System.out.println(color + agentName+" : J'ai reçu la position du tank et son nom : "+tanker.getFirst()+ " "+tanker.getSecond());
 			}
 
 		}

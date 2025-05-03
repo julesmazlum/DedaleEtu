@@ -35,8 +35,7 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	/* Gestion des agents */
 	
 	private HashMap<String, String> agent_types = new HashMap<>();
-	private String tanker = null;
-	private Location tankLoc = null;
+	private Tuple3<String, Location, Instant> tanker = new Tuple3<>(null, null, Instant.now());
 	
 
 	protected void setup(){
@@ -128,16 +127,6 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	}
 
 
-	public Location getTankLoc() {
-		return tankLoc;
-	}
-
-
-	public void setTankLoc(Location tankLoc) {
-		this.tankLoc = tankLoc;
-	}
-
-
 	public void setIsMapExplored(boolean isMapExplored) {
 		this.isMapExplored = isMapExplored;
 	}
@@ -156,15 +145,6 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 		this.liste_pos_ressources = liste_pos_ressources;
 	}
 
-
-	public String getTanker() {
-		return tanker;
-	}
-
-
-	public void setTanker(String tanker) {
-		this.tanker = tanker;
-	}
 	
 	public HashMap<String, String> getAgent_types() {
 		return agent_types;
@@ -203,6 +183,16 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 
 	public void setCapMax(int capMax) {
 		this.capMax = capMax;
+	}
+
+
+	public Tuple3<String, Location, Instant> getTanker() {
+		return tanker;
+	}
+
+
+	public void setTanker(Tuple3<String, Location, Instant> tanker) {
+		this.tanker = tanker;
 	}
 	
 	

@@ -48,12 +48,12 @@ public class MyCollectBehaviour extends SimpleBehaviour {
 		
 		/* Gestion des agents */
 		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
-		Location tankLoc = ((MyCollectAgent) this.myAgent).getTankLoc();
+		Location tankLoc = ((MyCollectAgent) this.myAgent).getTanker().getSecond();
 		int capMax = ((MyCollectAgent) this.myAgent).getCapMax();
 		
 		
 		if(myMap==null) {
-			myMap= new MapRepresentation();
+			myMap= new MapRepresentation(agentName);
 			((MyCollectAgent) this.myAgent).setMyMap(myMap);
 		}
 		

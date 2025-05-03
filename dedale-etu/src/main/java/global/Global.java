@@ -19,7 +19,7 @@ import jade.lang.acl.UnreadableException;
 public class Global {
 	
 	// temps de déplacement
-	public static int temps = 100;
+	public static int temps = 200;
 	
 	// définir les codes de couleur ansi
 	public static final String RESET = "\u001B[0m";

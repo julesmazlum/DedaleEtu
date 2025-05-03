@@ -12,6 +12,7 @@ import eu.su.mas.dedale.env.gs.GsLocation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
+import eu.su.mas.dedaleEtu.mas.myAgents.MyExploreAgent;
 import jade.core.behaviours.SimpleBehaviour;
 
 
@@ -49,7 +50,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	public void action() {
 
 		if(this.myMap==null)
-			this.myMap= new MapRepresentation();
+			this.myMap= new MapRepresentation(((MyExploreAgent) this.myAgent).getLocalName());
 		
 		//0) Retrieve the current position
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
