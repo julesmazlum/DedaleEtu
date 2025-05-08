@@ -4,7 +4,7 @@
 	"initialLocation":"82",
 	"detectionRadius":0,
 	"quantity":95,
-	"lockPickingExpertise":0,
+	"lockPickingExpertise":2,
 	"strengthExpertise":0
  },
  {
@@ -12,7 +12,7 @@
 	"initialLocation":"96",
 	"detectionRadius":0,
 	"quantity":24,
-	"lockPickingExpertise":0,
+	"lockPickingExpertise":1,
 	"strengthExpertise":0
  },
  {

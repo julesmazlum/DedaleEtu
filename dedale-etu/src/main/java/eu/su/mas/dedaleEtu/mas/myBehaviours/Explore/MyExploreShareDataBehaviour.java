@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
@@ -17,7 +18,7 @@ import jade.lang.acl.ACLMessage;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class MyExploreShareMapBehaviour extends SimpleBehaviour{
+public class MyExploreShareDataBehaviour extends SimpleBehaviour{
 	
 	private static final long serialVersionUID = -568863390879327961L;
 	
@@ -26,7 +27,7 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 	private int exit;
 
 	/* Constructeur */
-	public MyExploreShareMapBehaviour(final AbstractDedaleAgent myagent) {
+	public MyExploreShareDataBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
@@ -34,17 +35,21 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		
+		/*
+		 * Données
+		 */
+		
 		/* Affichage */
 		String agentName = ((MyExploreAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
 		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
-		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyExploreAgent) this.myAgent).getListe_pos_ressources();
+		HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = ((MyExploreAgent) this.myAgent).getListTreasureData();
 		
 		/* Gestion des agents */
-		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
-		HashMap<String, String> agent_types = ((MyExploreAgent) this.myAgent).getAgent_types();
+		Map<String, MapRepresentation> listAgentMap = ((MyExploreAgent) this.myAgent).getListAgentMap();
+		HashMap<String, String> agentTypes = ((MyExploreAgent) this.myAgent).getAgentTypes();
 		String receiverCARTE = ((MyExploreAgent) this.myAgent).getAgentNameToSendTo();
 		Tuple3<String, Location, Instant> tanker = ((MyExploreAgent) this.myAgent).getTanker();
 		
@@ -52,44 +57,45 @@ public class MyExploreShareMapBehaviour extends SimpleBehaviour{
 		List<Serializable> message = new ArrayList<>();
 
 		/*
-		 * Envoyer la carte à la personne observée
+		 * Envoyer les donées à la personne observée
 		 */
 		
 		//ajout de la carte en message[0]
-		if(agent_types.get(receiverCARTE).equals("agentExplo")) {
+		// Si c'est un agent explo
+		if(agentTypes.get(receiverCARTE).equals("agentExplo")) {
 			System.out.println(color + agentName+" : "+receiverCARTE+" est un agent explo.");
-			if (!liste_agent_map.containsKey(receiverCARTE)) {
-				System.out.println(color + agentName+" : "+receiverCARTE+" n'est pas dans le dictionnaire je lui envoie toute ma carte");
-				liste_agent_map.put(receiverCARTE, new MapRepresentation(false));
+			if (!listAgentMap.containsKey(receiverCARTE)) {
+				System.out.println(color + agentName+" : "+receiverCARTE+" n'est pas dans le dictionnaire je lui envoie toute ma carte.");
+				listAgentMap.put(receiverCARTE, new MapRepresentation(false));
 				message.add((Serializable) myMap.getSerializableGraph());
 			} else {
-				System.out.println(color + agentName+" : "+receiverCARTE+" est dans le dictionnaire je lui envoie la carte depuis la dernière fois");
-				MapRepresentation map = liste_agent_map.get(receiverCARTE);
+				System.out.println(color + agentName+" : "+receiverCARTE+" est dans le dictionnaire je lui envoie la carte depuis la dernière fois.");
+				MapRepresentation map = listAgentMap.get(receiverCARTE);
 				message.add((Serializable) map.getSerializableGraph());
-				liste_agent_map.put(receiverCARTE, new MapRepresentation(false));
+				listAgentMap.put(receiverCARTE, new MapRepresentation(false));
 			}
 		}
-		if(agent_types.get(receiverCARTE).equals("agentCollect")) {
-			System.out.println(color + agentName+" : "+receiverCARTE+" est un agent collect");
+		//Si c'est un agent collect
+		if(agentTypes.get(receiverCARTE).equals("agentCollect")) {
+			System.out.println(color + agentName+" : "+receiverCARTE+" est un agent collect.");
 			message.add((Serializable) myMap.getSerializableGraph());
-			System.out.println(color + agentName+" : Je lui envoie donc toute la carte");
+			System.out.println(color + agentName+" : Je lui envoie donc toute la carte.");
 		}
 		
-		//ajout de la liste de type en message[1]
-		message.add(liste_pos_ressources);
+		//ajout de la des ressources en message[1]
+		message.add(listTreasureData);
 		System.out.println(color + agentName+" : J'envoie également la positions des ressources");
 		
-		//message[2]
-		message.add(agent_types);
+		//ajout de la liste de type d'agents en message[2]
+		message.add(agentTypes);
 		System.out.println(color + agentName+" : J'envoie également le type des agents");
 		
 		
-		//ajout de tankLoc en message[3]
+		//ajout si possible de tanker en message[3]
 		if(tanker.getSecond()!=null) {
 			System.out.println(color + agentName+" : J'ai la position du tank je lui envoie : " + tanker.getSecond());
 			message.add(tanker);
 		}
-		
 		
 		
 		

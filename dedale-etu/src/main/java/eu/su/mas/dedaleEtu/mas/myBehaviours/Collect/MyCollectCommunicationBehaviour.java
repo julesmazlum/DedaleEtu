@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import dataStructures.serializableGraph.SerializableSimpleGraph;
 import dataStructures.tuple.Couple;
 import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -41,6 +41,10 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 	@SuppressWarnings("unchecked")
 	public void action() {
 		
+		/*
+		 * Données
+		 */
+		
 		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
@@ -48,13 +52,13 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
 		MapRepresentation myMap2 = ((MyCollectAgent) this.myAgent).getMyMap2();
-		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent)this.myAgent).getListe_pos_ressources();
+		HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = ((MyCollectAgent)this.myAgent).getListTreasureData();
 		List<Couple<Location, List<Couple<Observation, String>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
 		List<Location> listToMove = new ArrayList<>();
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 		
 		/* Gestion des agents */
-		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
+		HashMap<String, String> agentTypes = ((MyCollectAgent) this.myAgent).getAgentTypes();
 		Tuple3<String, Location, Instant> tanker = ((MyCollectAgent) this.myAgent).getTanker();
 		
 		
@@ -63,7 +67,7 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 		 */
 		
 		
-		//Réception du type
+		/* Réception du type d'un agent */
 		MessageTemplate msgREPLYTYPE2=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("REPLY-TYPE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
@@ -72,20 +76,21 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 			ArrayList<String> sltype2=null;
 			try {
 				sltype2 = (ArrayList<String>) msgReceivedREPLYTYPE.getContentObject();
-				System.out.println(color + agentName+ " : J'ai son type : "+sltype2);
+				System.out.println(color + agentName+ " : J'ai reçu son type : "+sltype2);
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			agent_types.put(sltype2.get(0), sltype2.get(1));
+			//Ajouter l'information dans le dictionnaire correspondant
+			agentTypes.put(sltype2.get(0), sltype2.get(1));
+			//Si le type est agentTanker, on ajoute l'information dans l'attribut tanker
 			if(sltype2.get(1).equals("agentTanker")) {
 				Tuple3<String, Location, Instant> newTanker = new Tuple3<>(sltype2.get(0), null, null);
 				((MyCollectAgent) this.myAgent).setTanker(newTanker);
 			}
-			System.out.println(color + agentName+ " : Je l'ai ajouté au dico : "+agent_types);			
+			System.out.println(color + agentName+ " : Je l'ai ajouté au dictionnaire : "+agentTypes);			
 		}
 		
-		//Réception demande de type
+		/* Réception demande de type */
 		MessageTemplate msgASKTYPE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("ASK-TYPE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
@@ -95,7 +100,7 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 			String asker=null;
 			try {
 				asker = (String) msgReceivedTYPE.getContentObject();
-				System.out.println(color + agentName+ " : "+asker + " me demande mon type");
+				System.out.println(color + agentName+ " : "+asker + " me demande mon type.");
 				
 				//Envoie du type à asker
 				ACLMessage msgREPLYTYPE = new ACLMessage(ACLMessage.INFORM);
@@ -113,30 +118,29 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
 				((AbstractDedaleAgent)this.myAgent).sendMessage(msgREPLYTYPE);
 				System.out.println(color + agentName+ " : Je lui envoie mon type : "+sltype);
 				
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
 		
-		//Réception demande de bouger
+		/* Réception demande de me déplacer */
 		MessageTemplate msgMOVE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("MOVE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
 		ACLMessage msgReceivedMOVE=this.myAgent.receive(msgMOVE);
 		Location posSender = null;
 		if (msgReceivedMOVE!=null) {
-			System.out.println(color + agentName + " : Je dois bouger et je suis pas sur un chemin précis");
+			System.out.println(color + agentName + " : Je dois me déplacer et je suis pas sur un chemin précis.");
 			
 			//Récupération de la position de l'agent qui demande à ce qu'on se déplace
 			try {
 				posSender = (Location) msgReceivedMOVE.getContentObject();
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -153,6 +157,7 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 			//Choix aléatoire parmi les positions disponibles
 			Location pos = null;
 			
+			//Si je n'ai nul part ou aller
 			if(listToMove.size()==0) {
 				System.out.println(color+agentName+" : Je suis dans une impasse.");
 			}else {
@@ -161,17 +166,20 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 				myMap.addNewNode(pos.getLocationId());
 	        	myMap.addEdge(myPosition.getLocationId(), pos.getLocationId());
 				
-				//if(!((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos.toString()))) {
+	        	
 	        	if(!Global.moveNextNode(pos.toString(), (AbstractDedaleAgent) myAgent, color, agentName)) {
+	        		//Si je n'arrive pas à me déplacer
 					System.out.println(color+agentName+" : Je n'ai pas réussi à m'écarter du chemin.");
 				}else {
-					System.out.println(color+agentName+" : J'ai réussi à aller m'écarter du chemin ");
+					//Sinon je me déplace
+					System.out.println(color+agentName+" : J'ai réussi à m'écarter du chemin.");
 				}
 				
 			}
 		}
 		
-		//Réception IMPASSE
+		
+		/* Réception impasse quand explo */
 		MessageTemplate msgIMPASSE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("IMPASSE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
@@ -179,13 +187,14 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 		if (msgReceivedIMPASSE!=null) {
 			ArrayList<Location> node=null;
 			try {
+				//node : noeud de sender + noeud oue je suis
 				node = (ArrayList<Location>) msgReceivedIMPASSE.getContentObject();
-				System.out.println(color + agentName+ " : J'ai reçu un noeud d'un agent dans une impasse");
+				System.out.println(color + agentName+ " : J'ai reçu un noeud d'un agent dans une impasse.");
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
+			// j'ajoute ce noeud dans ma carte, comme ça je n'ai pas à aller sur le noeud de l'agent qui dans une impasse
 			myMap.addNewNode(node.get(0).getLocationId());
 			myMap.addNewNode(node.get(1).getLocationId());
         	myMap.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
@@ -196,11 +205,11 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
             	myMap2.addEdge(node.get(0).getLocationId(), node.get(1).getLocationId());
             	myMap2.addNode(node.get(0).getLocationId(),MapAttribute.closed);
         	}
-        	System.out.println(color + agentName+ " : Je l'ai ajouté à ma carte");
+        	System.out.println(color + agentName+ " : Je l'ai ajouté à ma carte.");
 		}
 		
 		
-		//Reception données
+		/* Réception données */
 		List<Serializable> s=null;
 		MessageTemplate msg=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("DATA"),
@@ -209,9 +218,8 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 		if (msgReceived!=null) {
 			try {
 				s = (List<Serializable>) msgReceived.getContentObject();
-				System.out.println(color + agentName+ " : J'ai son message sur les données");
+				System.out.println(color + agentName+ " : J'ai reçu des données");
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
 		}	
@@ -222,28 +230,31 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
 			System.out.println(color + agentName+" : J'ai reçu la carte.");
 			
 			//s[1] : liste_pos_ressources
-			((MyCollectAgent) this.myAgent).setListe_pos_ressources(mergeRessources(liste_pos_ressources, (HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>>) s.get(1)));
-			liste_pos_ressources = ((MyCollectAgent) this.myAgent).getListe_pos_ressources();
-			System.out.println(color + agentName+" : J'ai reçu la position des données : "+(HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>>) s.get(1));
-			System.out.println(color + agentName+" : Ma nouvelle liste : "+liste_pos_ressources);
+			//merge des deux liste (locale et reçu) en gardant celle avec les informations les plus récentes
+			((MyCollectAgent) this.myAgent).setListTreasureData(Global.mergeRessources(listTreasureData, (HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer,Integer>, Instant>>>) s.get(1)));
+			listTreasureData = ((MyCollectAgent) this.myAgent).getListTreasureData();
+			System.out.println(color + agentName+" : J'ai reçu les informations sur les données : "+(HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>>) s.get(1));
+			System.out.println(color + agentName+" : Ma nouvelle liste des données : "+listTreasureData);
 			
 			//s[2] : agent types
-			HashMap<String, String> mergedMap = new HashMap<>((HashMap<String, String>) s.get(2)); // Copie initiale de la première HashMap
-	        for (String key : agent_types.keySet()) {
-	            // Si la clé n'existe pas dans mergedMap, ou si tu veux écraser la valeur existante :
-	            mergedMap.put(key, agent_types.get(key));
+			//merge des deux dictionnaires
+			HashMap<String, String> mergedMap = new HashMap<>((HashMap<String, String>) s.get(2));
+	        for (String key : agentTypes.keySet()) {
+	            mergedMap.put(key, agentTypes.get(key));
 	        }
-			((MyCollectAgent) this.myAgent).setAgent_types(mergedMap);
-			agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
-			System.out.println(color + agentName+" : J'ai reçu la liste de type des agents : "+agent_types);
+			((MyCollectAgent) this.myAgent).setAgentTypes(mergedMap);
+			agentTypes = ((MyCollectAgent) this.myAgent).getAgentTypes();
+			System.out.println(color + agentName+" : J'ai reçu la liste de type des agents : "+agentTypes);
 			
 			//s[3] : couple<pos,nom>
+			//si le sender avait cette information et l'a envoyé
 			if(s.size()>3) {
 				Tuple3<String, Location, Instant> tankerReceived = (Tuple3<String, Location, Instant>) s.get(3);
+				//Si je n'avais aucune information sur tanker OU l'information que j'ai reçu est plus récente, je garde l'information reçu
 				if(tanker.getThird()==null || tankerReceived.getThird().isAfter(tanker.getThird())) {
 					((MyCollectAgent) this.myAgent).setTanker(tankerReceived);
+					System.out.println(color + agentName+" : J'ai reçu la (nouvelle) position du tanker et son nom : "+tanker.getFirst()+ " "+tanker.getSecond());
 				}
-				System.out.println(color + agentName+" : J'ai reçu la position du tank et son nom : "+tanker.getFirst()+ " "+tanker.getSecond());
 			}
 
 		}
@@ -264,60 +275,5 @@ public class MyCollectCommunicationBehaviour extends SimpleBehaviour {
     public int onEnd() {
        return exit;
     }
-	
-	// fonction pour fusionner les données en gardant la plus récente
-	public HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> mergeRessources(
-		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> localListe,
-		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> receivedListe) {
-		    
-		    // nouvelle map fusionnée
-		    HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> mergedListe = new HashMap<>();
-		    
-		    // on copie tout ce qui est en local d'abord
-		    for (Map.Entry<String, ArrayList<Tuple3<String, Integer, Instant>>> entry : localListe.entrySet()) {
-		        mergedListe.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-		    }
-
-		    // on parcourt ce qu'on a reçu
-		    for (Map.Entry<String, ArrayList<Tuple3<String, Integer, Instant>>> entry : receivedListe.entrySet()) {
-		        String resource = entry.getKey();
-		        ArrayList<Tuple3<String, Integer, Instant>> receivedList = entry.getValue();
-		        
-		        // récupère ou crée la liste dans la fusion
-		        ArrayList<Tuple3<String, Integer, Instant>> mergedList = mergedListe.get(resource);
-		        if (mergedList == null) {
-		            mergedList = new ArrayList<>();
-		            mergedListe.put(resource, mergedList);
-		        }
-		        
-		        for (Tuple3<String, Integer, Instant> receivedTuple : receivedList) {
-		            String receivedLocation = receivedTuple.getFirst();
-		            Integer receivedQuantity = receivedTuple.getSecond();
-		            Instant receivedTime = receivedTuple.getThird();
-		            
-		            boolean found = false;
-		            for (int i = 0; i < mergedList.size(); i++) {
-		                Tuple3<String, Integer, Instant> mergedTuple = mergedList.get(i);
-		                
-		                if (mergedTuple.getFirst().equals(receivedLocation)) {
-		                    // même position => on garde celui avec le temps le plus récent
-		                    if (receivedTime.isAfter(mergedTuple.getThird())) {
-		                        Tuple3<String, Integer, Instant> updatedTuple = new Tuple3<>(receivedLocation, receivedQuantity, receivedTime);
-		                        mergedList.set(i, updatedTuple);
-		                    }
-		                    found = true;
-		                    break;
-		                }
-		            }
-		            
-		            if (!found) {
-		                // si pas trouvé, on ajoute direct
-		                mergedList.add(new Tuple3<>(receivedLocation, receivedQuantity, receivedTime));
-		            }
-		        }
-		    }
-		    
-		    return mergedListe;
-		}
 
 }

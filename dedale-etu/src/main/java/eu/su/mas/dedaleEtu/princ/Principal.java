@@ -317,7 +317,7 @@ public class Principal {
 		//4) Give the class name of your agent to let the system instantiate it
 		ag=createNewDedaleAgent(c, agentName, DummyWumpusShift2.class.getName(), entityParameters0);
 		agentList.add(ag);
-		*/
+		
 		
 
 		/*********

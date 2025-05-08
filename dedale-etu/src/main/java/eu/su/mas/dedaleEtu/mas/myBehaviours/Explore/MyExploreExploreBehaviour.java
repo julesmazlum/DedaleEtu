@@ -14,7 +14,7 @@ import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.SimpleBehaviour;
 
 
-public class MyExploreBehaviour extends SimpleBehaviour {
+public class MyExploreExploreBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
@@ -23,7 +23,7 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 	private int exit;
 
 	/* Constructeur */
-	public MyExploreBehaviour(final AbstractDedaleAgent myagent) {
+	public MyExploreExploreBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
@@ -37,13 +37,18 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyExploreAgent) this.myAgent).getMyMap();
 		MapRepresentation myMap2 = ((MyExploreAgent) this.myAgent).getMyMap2();
-		Map<String, MapRepresentation> liste_agent_map = ((MyExploreAgent) this.myAgent).getListe_agent_map();
 		boolean IsInitialMapExplored = ((MyExploreAgent) this.myAgent).getIsInitialMapExplored();
+		
+		/* Gestion agents/ carte */
+		Map<String, MapRepresentation> listAgentMap = ((MyExploreAgent) this.myAgent).getListAgentMap();
 
+		/* Initialisation de la carte */
 		if(myMap==null) {
 			myMap= new MapRepresentation(agentName);
 			((MyExploreAgent) this.myAgent).setMyMap(myMap);
 		}
+		
+		
 		
 		/*
 		 * Exploration de la carte 
@@ -52,24 +57,30 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 		
 		/* Exploration virtuelle si exploration initialle finie */
 		if(((MyExploreAgent) this.myAgent).getIsMapExplored()) {
-			System.out.println(color + agentName+" : On recommence une exploration virtuelle");
+			System.out.println(color + agentName+" : Je recommence une exploration virtuelle.");
+			
+			// Initialisation de la carte virtuelle
 			myMap2 = new MapRepresentation(false);
 			((MyExploreAgent) this.myAgent).setMyMap2(myMap2);
 			((MyExploreAgent) this.myAgent).setIsMapExplored(false);
 			myMap = myMap2;
 		}
+		
 		if(myMap2!=null) {
 			myMap = myMap2;
 		}
 		
 		
+		/*
+		 * Stratégie d'exploration initiale
+		 */
 		
 		//0) Retrieve the current position
 		Location myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 	
 		if (myPosition!=null){
 			//List of observable from the agent's current position
-			List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+			List<Couple<Location,List<Couple<Observation,String>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();
 
 			try {
 				this.myAgent.doWait(Global.temps);
@@ -87,9 +98,10 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				Location accessibleNode=iter.next().getLeft();
 				boolean isNewNode=myMap.addNewNode(accessibleNode.getLocationId());
 				
+				//Si c'est un nouveau noeud et que c'est l'exploration initiale
 				if(isNewNode && !IsInitialMapExplored) {
 					// On ajoute également dans le dictionnaire pour chaque agent
-					for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
+					for (Map.Entry<String, MapRepresentation> entry : listAgentMap.entrySet()) {
 					    MapRepresentation value = entry.getValue();
 					    value.addNewNode(accessibleNode.getLocationId());
 					}
@@ -99,9 +111,10 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				if (myPosition.getLocationId()!=accessibleNode.getLocationId()) {
 					myMap.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
 					
+					//Si c'est un nouveau noeud et que c'est l'exploration initiale
 					if(isNewNode && !IsInitialMapExplored) {
 						// On ajoute également dans le dictionnaire pour chaque agent
-						for (Map.Entry<String, MapRepresentation> entry : liste_agent_map.entrySet()) {
+						for (Map.Entry<String, MapRepresentation> entry : listAgentMap.entrySet()) {
 						    MapRepresentation value = entry.getValue();
 						    value.addEdge(myPosition.getLocationId(), accessibleNode.getLocationId());
 						}
@@ -113,7 +126,7 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 
 			//3) while openNodes is not empty, continues.
 			if (!myMap.hasOpenNode()){
-				//Explo finished
+				//Exploration terminée
 				System.out.println(color + agentName+" : Toute la carte a été explorée.");
 				((MyExploreAgent) this.myAgent).setIsMapExplored(true);
 				((MyExploreAgent) this.myAgent).setIsInitialMapExplored(true);
@@ -134,6 +147,7 @@ public class MyExploreBehaviour extends SimpleBehaviour {
 				}
 				
 			}
+			//Avancer au next node
 			System.out.println(color + agentName+" : J'explore");
 			Global.moveNextNode(nextNodeId, (AbstractDedaleAgent) myAgent, color, agentName);
 		}

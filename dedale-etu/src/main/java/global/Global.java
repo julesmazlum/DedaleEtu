@@ -1,9 +1,15 @@
 package global;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import dataStructures.tuple.Couple;
+import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.env.gs.GsLocation;
@@ -18,8 +24,15 @@ import jade.lang.acl.UnreadableException;
 
 public class Global {
 	
-	// temps de déplacement
-	public static int temps = 200;
+	
+	/*
+	 * Temps de déplacement
+	 */
+	public static int temps = 100;
+	
+	/*
+	 * Affichage
+	 */
 	
 	// définir les codes de couleur ansi
 	public static final String RESET = "\u001B[0m";
@@ -45,18 +58,26 @@ public class Global {
 	    }
 	}
 	
+	/*
+	 * Fonction de déplacement
+	 */
+	
 	// fonction pour se déplacer à un point avec un chemin
 	public static void move(List<String> liste, AbstractDedaleAgent myAgent, String color, String agentName) {
 		
 		boolean moved;
+		//tant que je chemin n'est pas fini
 	    while (!liste.isEmpty()) {
 	    	
 	        String nextNode = liste.get(0);
 	        
+	        //essayer de se déplacer au prochain noeud
 	        moved = Global.moveNextNode(nextNode, (AbstractDedaleAgent) myAgent, color, agentName);
 	        
+	        //si réussi, passer enlever le noeud actuel
 	        if(moved) {
 	        	liste.remove(0);
+	        //sinon, un blocage a eu lieu il faut se déplacer
 	        }else {
 	        	if(move2(nextNode, liste, myAgent, color, agentName)) {
 	        		return;
@@ -71,8 +92,9 @@ public class Global {
 	    }
 	}
 
-
+	// fonction de déplacement avec blocage
 	public static boolean move2(String nextNode, List<String> liste, AbstractDedaleAgent myAgent, String color, String agentName) {
+		
 		//Réception demande de bouger
 		MessageTemplate msgMOVE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("MOVE"),
@@ -80,7 +102,7 @@ public class Global {
 		ACLMessage msgReceivedMOVE=myAgent.receive(msgMOVE);
 		if (msgReceivedMOVE!=null) {
 			
-			System.out.println(color + agentName + " : Je dois bouger mais j'étais en chemin pour "+nextNode);
+			System.out.println(color + agentName + " : Je dois me déplacer mais j'étais en chemin pour "+nextNode);
 			
 			//Données utiles
 			List<Couple<Location, List<Couple<Observation, String>>>> observations = myAgent.observe();
@@ -117,28 +139,35 @@ public class Global {
 			
 			//Choix aléatoire parmi les options
 			Location pos = null;
+			//si aucun choix possible, impasse
 			if(listToMove.size()==0) {
 				System.out.println(color+agentName+" : Je suis dans une impasse.");
-			}else {
 				
+			//sinon, choix aléatoire et déplacement
+			}else {
 				pos = listToMove.get((int)(Math.random() * listToMove.size()));
 				myMap.addNewNode(pos.getLocationId());
 	        	myMap.addEdge(myPosition.getLocationId(), pos.getLocationId());
 	        	
+	        	//tentative de déplacement
 	        	if(myAgent.moveTo(new GsLocation(pos.toString()))) {
 					System.out.println(color+agentName+" : J'ai réussi à m'écarter du chemin.");
 					
+					//calcul du nouveau chemin vers la destination depuis le nouveau noeud
 	    			List<String> nouveauChemin = myMap.getShortestPath(pos.toString(), liste.get(liste.size()-1));
 	    			move(nouveauChemin, myAgent, color, agentName);
 	    			return true;
+	    			//retourner true pour annuler la fonction appelante
+	    			
+	    		//si pas réussi on retante depuis la fonction appelante
 				}else {
 					System.out.println(color+agentName+" : J'ai pas réussi à m'écarter du chemin");
 				}	
-	        	
 			}
 		}
 		return false;
 	}
+	
 	
 	// fonction pour se déplacer au prochain noeud
 	public static boolean moveNextNode(String nextNodeId, AbstractDedaleAgent myagent, String color, String agentName) {
@@ -147,7 +176,7 @@ public class Global {
 		
 		//Bloqué
 		if(!myagent.moveTo(new GsLocation(nextNodeId))) {
-			System.out.println(color + agentName+" : Je peux pas avancer au next node : "+nextNodeId);
+			System.out.println(color + agentName+" : Je peux pas avancer au noeud suivant : "+nextNodeId);
 			String receiver = null;
 			
 			//Récupérer le nom de l'agent qui nous bloque
@@ -180,14 +209,67 @@ public class Global {
 					e.printStackTrace();
 				}
 				myagent.sendMessage(msg);
-				System.out.println(color + agentName+" : "+ receiver + " tu peux bouger stp");
+				System.out.println(color + agentName+" : Hey "+ receiver + ", tu peux te déplacer pls <3.");
 				//J'ai pas réussi à me déplacer
 				return false;
-			}
-			
+			}	
 		}
+		
 		//J'ai réussi à me déplacer
 		return true;
 	}
+	
+	// fonction pour fusionner les données en gardant la plus récente
+	public static HashMap<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> mergeRessources(
+		    HashMap<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> localListe,
+		    HashMap<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> receivedListe) {
+
+		    HashMap<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> mergedListe = new HashMap<>();
+
+		    // copie des données locales
+		    for (Map.Entry<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> entry : localListe.entrySet()) {
+		        mergedListe.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+		    }
+
+		    // fusion avec les données reçues
+		    for (Map.Entry<String, ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>>> entry : receivedListe.entrySet()) {
+		        String resource = entry.getKey();
+		        ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>> receivedList = entry.getValue();
+
+		        ArrayList<Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant>> mergedList = mergedListe.get(resource);
+		        if (mergedList == null) {
+		            mergedList = new ArrayList<>();
+		            mergedListe.put(resource, mergedList);
+		        }
+
+		        for (Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant> receivedTuple : receivedList) {
+		            String receivedLocation = receivedTuple.get_1();
+		            Integer receivedQuantity = receivedTuple.get_2();
+		            Tuple3<Integer, Integer, Integer> receivedCouple = receivedTuple.get_3();
+		            Instant receivedTime = receivedTuple.get_4();
+
+		            boolean found = false;
+		            for (int i = 0; i < mergedList.size(); i++) {
+		                Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant> mergedTuple = mergedList.get(i);
+
+		                if (mergedTuple.get_1().equals(receivedLocation)) {
+		                    if (receivedTime.isAfter(mergedTuple.get_4())) {
+		                        Tuple4<String, Integer, Tuple3<Integer, Integer, Integer>, Instant> updatedTuple =
+		                            new Tuple4<>(receivedLocation, receivedQuantity, receivedCouple, receivedTime);
+		                        mergedList.set(i, updatedTuple);
+		                    }
+		                    found = true;
+		                    break;
+		                }
+		            }
+
+		            if (!found) {
+		                mergedList.add(new Tuple4<>(receivedLocation, receivedQuantity, receivedCouple, receivedTime));
+		            }
+		        }
+		    }
+
+		    return mergedListe;
+		}
 
 }

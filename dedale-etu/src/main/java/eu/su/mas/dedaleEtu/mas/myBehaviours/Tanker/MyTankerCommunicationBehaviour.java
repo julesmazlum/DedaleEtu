@@ -36,7 +36,7 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 		String color = Global.getColorForAgent(agentName);
 		
 		
-		//Réception demande de type
+		/* Réception demande de type */
 		MessageTemplate msgASKTYPE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("ASK-TYPE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
@@ -46,7 +46,7 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 			String asker=null;
 			try {
 				asker = (String) msgReceivedTYPE.getContentObject();
-				System.out.println(color + agentName+ " : "+asker + " me demande mon type");
+				System.out.println(color + agentName+ " : "+asker + " me demande mon type.");
 				
 				//Envoie du type à asker
 				ACLMessage msgREPLYTYPE = new ACLMessage(ACLMessage.INFORM);
@@ -64,16 +64,17 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
 				((AbstractDedaleAgent)this.myAgent).sendMessage(msgREPLYTYPE);
 				System.out.println(color + agentName+ " : Je lui envoie mon type : "+sltype);
 				
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		
-		//Réception demande de bouger
+		
+		/* Réception demande de me déplacer */
 		MessageTemplate msgMOVE=MessageTemplate.and(
 				MessageTemplate.MatchProtocol("MOVE"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
@@ -84,11 +85,10 @@ public class MyTankerCommunicationBehaviour extends SimpleBehaviour {
 			try {
 				posSender = (Location) msgReceivedMOVE.getContentObject();
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			System.out.println(color + agentName + " : Je dois bouger et pas en "+posSender.toString());
+			System.out.println(color + agentName + " : Je dois me déplacer et pas en "+posSender.toString());
 			((MyTankerAgent) this.myAgent).setPosSender(posSender);
 		}
 		

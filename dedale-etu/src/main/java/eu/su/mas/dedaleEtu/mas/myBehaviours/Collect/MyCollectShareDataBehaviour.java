@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
@@ -16,7 +17,7 @@ import jade.lang.acl.ACLMessage;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class MyCollectShareMapBehaviour extends SimpleBehaviour{
+public class MyCollectShareDataBehaviour extends SimpleBehaviour{
 	
 	private static final long serialVersionUID = -568863390879327961L;
 	
@@ -25,7 +26,7 @@ public class MyCollectShareMapBehaviour extends SimpleBehaviour{
 	private int exit;
 
 	/* Constructeur */
-	public MyCollectShareMapBehaviour(final AbstractDedaleAgent myagent) {
+	public MyCollectShareDataBehaviour(final AbstractDedaleAgent myagent) {
 		super(myagent);
 	}
 
@@ -33,16 +34,20 @@ public class MyCollectShareMapBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		
+		/*
+		 * Données
+		 */
+		
 		/* Affichage */
 		String agentName = ((MyCollectAgent) this.myAgent).getLocalName();
 		String color = Global.getColorForAgent(agentName);
 		
 		/* Gestion de la carte */
 		MapRepresentation myMap = ((MyCollectAgent) this.myAgent).getMyMap();
-		HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = ((MyCollectAgent) this.myAgent).getListe_pos_ressources();
+		HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = ((MyCollectAgent) this.myAgent).getListTreasureData();
 		
 		/* Gestion des agents */
-		HashMap<String, String> agent_types = ((MyCollectAgent) this.myAgent).getAgent_types();
+		HashMap<String, String> agentTypes = ((MyCollectAgent) this.myAgent).getAgentTypes();
 		String receiverCARTE = ((MyCollectAgent) this.myAgent).getAgentNameToSendTo();
 		Tuple3<String, Location, Instant> tanker = ((MyCollectAgent) this.myAgent).getTanker();
 		
@@ -56,21 +61,21 @@ public class MyCollectShareMapBehaviour extends SimpleBehaviour{
 		
 		//ajout de la carte en message[0]
 		message.add((Serializable) myMap.getSerializableGraph());
-		System.out.println(color + agentName+" : Je lui envoie donc toute la carte");
+		System.out.println(color + agentName+" : Je lui envoie donc toute la carte.");
 		
 		//ajout de la liste de type en message[1]
-		message.add(liste_pos_ressources);
-		System.out.println(color + agentName+" : J'envoie également la positions des ressources");
+		message.add(listTreasureData);
+		System.out.println(color + agentName+" : J'envoie également les données sur les ressources");
 		
-		//message[2]
-		message.add(agent_types);
-		System.out.println(color + agentName+" : J'envoie également le type des agents");
+		//ajout de la liste des type des agents en message[2]
+		message.add(agentTypes);
+		System.out.println(color + agentName+" : J'envoie également le type des agents.");
 		
 		
-		//ajout de tankLoc en message[3]
+		//ajout de tanker en message[3]
 		if(tanker.getSecond()!=null) {
-			System.out.println(color + agentName+" : J'ai la position du tank je lui envoie : " + tanker.getSecond());
-			System.out.println(color + agentName+" : J'ai le nom du tank je lui envoie : "+ tanker.getFirst());
+			System.out.println(color + agentName+" : J'ai la position du tanker je lui envoie : " + tanker.getSecond());
+			System.out.println(color + agentName+" : J'ai le nom du tanker je lui envoie : "+ tanker.getFirst());
 			message.add(tanker);
 		}
 

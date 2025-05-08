@@ -48,14 +48,18 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 		
 		//Si bloque un autre agent, alors doit se déplacer
 		if(posSender!=null) {
+			
 			//Parcours des observations
 			for (Couple<Location, List<Couple<Observation, String>>> locationCouple : observations) {
 			    Location location = locationCouple.getLeft();
 			    List<Couple<Observation, String>> observationDetails = locationCouple.getRight();
+			    
 			    //Liste des positions accessibles
 			    listToMove.add(location.toString());
 			    
+			    //si location == position du sender, alors recup son nom
 			    if (location.toString().equals(posSender.toString())) {
+			    	
 			    	for (Couple<Observation, String> detail : observationDetails) {
 				        Observation obs = detail.getLeft();
 				        String valeur = detail.getRight();
@@ -68,12 +72,15 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 			    }
 			    
 			}
+			
 			//On retire la position actuelle et celle de l'agent qui demande à ce qu'on se déplace
 			listToMove.remove(myPosition.toString());
 			listToMove.remove(posSender.toString());
 			
 			//Choix aléatoire parmis les positions restantes
 			String pos = null;
+			
+			//si aucune possibilité, impasse
 			if(listToMove.size()==0) {
 				System.out.println(color+agentName+" : Je suis dans une impasse.");
 				
@@ -93,11 +100,11 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 						e.printStackTrace();
 					}
 					((AbstractDedaleAgent)this.myAgent).sendMessage(msgIMPASSE);
-					System.out.println(color+agentName+" : J'ai envoyé un message d'impasse.");
+					System.out.println(color+agentName+" : J'ai envoyé un message d'impasse avec mon noeud");
 				}
-				
+			
+			//choix aléatoire puis déplacement
 			}else {
-				
 				pos = listToMove.get((int)(Math.random() * listToMove.size()));
 				
 				if(((AbstractDedaleAgent)this.myAgent).moveTo(new GsLocation(pos))) {
@@ -106,7 +113,6 @@ public class MyTankerBehaviour extends SimpleBehaviour {
 				}else {
 					System.out.println(color+agentName+" : Je n'ai pas réussi à me déplacer pour laisser le chemin.");
 				}
-				
 			}
 			((MyTankerAgent) this.myAgent).setPosSender(null);
 		}

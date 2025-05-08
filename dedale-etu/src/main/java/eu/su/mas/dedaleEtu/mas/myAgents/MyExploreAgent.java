@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.platformManagment.*;
@@ -21,8 +21,8 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	
 	/* Gestion de la carte et ressources */
 	
-	private Map<String, MapRepresentation> liste_agent_map = new HashMap<>();
-	private HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources = new HashMap<>();
+	private Map<String, MapRepresentation> listAgentMap = new HashMap<>();
+	private HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = new HashMap<>();
 	
 	private MapRepresentation myMap;
 	private MapRepresentation myMap2;
@@ -32,7 +32,7 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	
 	/* Gestion des agents */
 	
-	private HashMap<String, String> agent_types = new HashMap<>();
+	private HashMap<String, String> agentTypes = new HashMap<>();
 	private Tuple3<String, Location, Instant> tanker = new Tuple3<>(null, null, Instant.now());
 	
 	
@@ -105,7 +105,6 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 		this.myMap = myMap;
 	}
 
-
 	public String getAgentNameToSendTo() {
 		return agentNameToSendTo;
 	}
@@ -115,13 +114,12 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	}
 
 
-	public Map<String, MapRepresentation> getListe_agent_map() {
-		return liste_agent_map;
+	public Map<String, MapRepresentation> getListAgentMap() {
+		return listAgentMap;
 	}
 
-
-	public void setListe_agent_map(Map<String, MapRepresentation> liste_agent_map) {
-		this.liste_agent_map = liste_agent_map;
+	public void setListAgentMap(Map<String, MapRepresentation> listAgentMap) {
+		this.listAgentMap = listAgentMap;
 	}
 
 	public void setIsMapExplored(boolean isMapExplored) {
@@ -133,22 +131,22 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	}
 
 
-	public HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> getListe_pos_ressources() {
-		return liste_pos_ressources;
+	public HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> getListTreasureData() {
+		return listTreasureData;
 	}
 
 
-	public void setListe_pos_ressources(HashMap<String, ArrayList<Tuple3<String, Integer, Instant>>> liste_pos_ressources) {
-		this.liste_pos_ressources = liste_pos_ressources;
+	public void setListTreasureData(HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData) {
+		this.listTreasureData = listTreasureData;
 	}
 	
-	public HashMap<String, String> getAgent_types() {
-		return agent_types;
+	public HashMap<String, String> getAgentTypes() {
+		return agentTypes;
 	}
 
 
-	public void setAgent_types(HashMap<String, String> agent_types) {
-		this.agent_types = agent_types;
+	public void setAgentTypes(HashMap<String, String> agentTypes) {
+		this.agentTypes = agentTypes;
 	}
 
 
