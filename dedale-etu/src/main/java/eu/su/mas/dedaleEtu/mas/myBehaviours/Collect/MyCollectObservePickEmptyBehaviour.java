@@ -74,7 +74,7 @@ public class MyCollectObservePickEmptyBehaviour extends SimpleBehaviour {
 		    	boolean foundTank = false;
 	    		for (Couple<Observation, String> detail : observationDetails) {
 			        String valeur = detail.getRight();
-			        if(valeur.equals(tanker.getFirst())){
+			        if(valeur!= null && valeur.equals(tanker.getFirst())){
 			        	foundTank=true;
 			        	break;
 			        }

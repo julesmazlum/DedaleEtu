@@ -1,9 +1,14 @@
 package eu.su.mas.dedaleEtu.mas.myBehaviours.Explore;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import dataStructures.tuple.Couple;
+import dataStructures.tuple.Tuple3;
+import dataStructures.tuple.Tuple4;
 import eu.su.mas.dedale.env.Location;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -41,6 +46,9 @@ public class MyExploreExploreBehaviour extends SimpleBehaviour {
 		
 		/* Gestion agents/ carte */
 		Map<String, MapRepresentation> listAgentMap = ((MyExploreAgent) this.myAgent).getListAgentMap();
+		int nbExplored = ((MyExploreAgent) this.myAgent).getNbExplored();
+		HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = ((MyExploreAgent)this.myAgent).getListTreasureData();
+		ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>> listGoldType = listTreasureData.get("Gold");
 
 		/* Initialisation de la carte */
 		if(myMap==null) {
@@ -68,6 +76,24 @@ public class MyExploreExploreBehaviour extends SimpleBehaviour {
 		
 		if(myMap2!=null) {
 			myMap = myMap2;
+		}
+		
+		int qteToUnlock = 0;
+    	if(listGoldType!=null) {
+    		//parcours de la liste
+    		for(Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant> tuple : listGoldType) {
+    			//si la quantité de ressource > 0 ET ((myLockPicking et myStretgh sont assez) OU (le coffre est déjà ouvert))
+        		if(tuple.get_2()>0 && tuple.get_3().getThird()==0) {
+        			qteToUnlock++;
+        		}
+        	}
+    	}
+    	
+    	if(qteToUnlock > 0 && nbExplored > 1) {
+			System.out.println(color+ agentName+" : (Explore) J'ai exploré la carte plus de 3 fois, je vais essayer d'aider à ouvrir les coffres des Godl");
+			exit = 2;
+			finished = true;
+			return;
 		}
 		
 		
@@ -128,6 +154,7 @@ public class MyExploreExploreBehaviour extends SimpleBehaviour {
 			if (!myMap.hasOpenNode()){
 				//Exploration terminée
 				System.out.println(color + agentName+" : Toute la carte a été explorée.");
+				((MyExploreAgent) this.myAgent).setNbExplored(((MyExploreAgent) this.myAgent).getNbExplored()+1);
 				((MyExploreAgent) this.myAgent).setIsMapExplored(true);
 				((MyExploreAgent) this.myAgent).setIsInitialMapExplored(true);
 				exit = 1;

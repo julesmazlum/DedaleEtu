@@ -29,6 +29,7 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	private MapRepresentation myMap2;
 	private boolean isMapExplored = false;
 	private String agentNameToSendTo = null;
+	private int nbExplored = 0;
 	
 	/* Gestion des agents */
 	
@@ -204,6 +205,18 @@ public class MyCollectAgent extends AbstractDedaleAgent {
 	public void setMyStrentgh(int myStrentgh) {
 		this.myStrentgh = myStrentgh;
 	}
+
+
+	public int getNbExplored() {
+		return nbExplored;
+	}
+
+
+	public void setNbExplored(int nbExplored) {
+		this.nbExplored = nbExplored;
+	}
+	
+	
 	
 	
 }

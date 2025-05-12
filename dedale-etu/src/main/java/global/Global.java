@@ -28,7 +28,7 @@ public class Global {
 	/*
 	 * Temps de déplacement
 	 */
-	public static int temps = 100;
+	public static int temps = 400;
 	
 	/*
 	 * Affichage
@@ -48,12 +48,12 @@ public class Global {
 	// fonction pour obtenir une couleur en fonction du nom de l'agent
 	public static String getColorForAgent(String agentName) {
 	    switch (agentName) {
-	        case "Mario": return RED;
-	        case "Luigi": return GREEN;
-	        case "Peach": return PINK;
-	        case "Daisy": return PURPLE;
-	        case "Toad": return BROWN;
-	        case "Bowser": return ORANGE;
+	        case "E1": return RED;
+	        case "C1": return GREEN;
+	        case "C2": return PINK;
+	        case "C3": return PURPLE;
+	        case "C4": return BROWN;
+	        case "Tank": return ORANGE;
 	        default: return CYAN; // couleur par défaut
 	    }
 	}
@@ -64,12 +64,32 @@ public class Global {
 	
 	// fonction pour se déplacer à un point avec un chemin
 	public static void move(List<String> liste, AbstractDedaleAgent myAgent, String color, String agentName) {
+		List<Couple<Location,List<Couple<Observation,String>>>> lobs= myAgent.observe();
 		
 		boolean moved;
 		//tant que je chemin n'est pas fini
 	    while (!liste.isEmpty()) {
 	    	
 	        String nextNode = liste.get(0);
+	        
+	        /*
+	        //sentir le golem
+	        for (Couple<Location, List<Couple<Observation, String>>> locationCouple : lobs) {
+			    Location location = locationCouple.getLeft();
+			    List<Couple<Observation, String>> observationDetails = locationCouple.getRight();
+			    
+			    if (location.toString().equals(nextNode)) {
+			    	for (Couple<Observation, String> detail : observationDetails) {
+				        Observation obs = detail.getLeft();
+			        
+				        if(obs.getName().equals("Stench")) {
+				        	System.out.println(color + agentName+" : Il ya le golem je veux pas avancer");
+				        	return;
+				        }
+			    	}
+			    }
+			}
+			*/
 	        
 	        //essayer de se déplacer au prochain noeud
 	        moved = Global.moveNextNode(nextNode, (AbstractDedaleAgent) myAgent, color, agentName);
@@ -173,6 +193,26 @@ public class Global {
 	public static boolean moveNextNode(String nextNodeId, AbstractDedaleAgent myagent, String color, String agentName) {
 		List<Couple<Location,List<Couple<Observation,String>>>> lobs= myagent.observe();
 		Location myPosition = myagent.getCurrentPosition();
+		
+		/*
+		//sentir le golem
+        for (Couple<Location, List<Couple<Observation, String>>> locationCouple : lobs) {
+		    Location location = locationCouple.getLeft();
+		    List<Couple<Observation, String>> observationDetails = locationCouple.getRight();
+		    
+		    if (location.toString().equals(nextNodeId)) {
+		    	for (Couple<Observation, String> detail : observationDetails) {
+			        Observation obs = detail.getLeft();
+		        
+			        if(obs.getName().equals("Stench")) {
+			        	System.out.println(color + agentName+" : Il ya le golem je veux pas avancer");
+			        	return false;
+			        }
+		    	}
+		    }
+		}
+		*/
+		
 		
 		//Bloqué
 		if(!myagent.moveTo(new GsLocation(nextNodeId))) {

@@ -51,6 +51,7 @@ public class MyCollectExploreBehaviour extends SimpleBehaviour {
 		HashMap<String, ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>>> listTreasureData = ((MyCollectAgent)this.myAgent).getListTreasureData();
 		Observation resType = ((MyCollectAgent) this.myAgent).getMyTreasureType();
 		ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>> listMyType = listTreasureData.get(resType.toString());
+		ArrayList<Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant>> listGoldType = listTreasureData.get("Gold");
 		
 		/* Gestion des agents */
 		List<Couple<Observation, Integer>> items = ((MyCollectAgent) this.myAgent).getBackPackFreeSpace();
@@ -58,6 +59,7 @@ public class MyCollectExploreBehaviour extends SimpleBehaviour {
 		int capMax = ((MyCollectAgent) this.myAgent).getCapMax();
 		int myLockPicking = ((MyCollectAgent) this.myAgent).getMyLockPicking();
 		int myStretgh = ((MyCollectAgent) this.myAgent).getMyStrentgh();
+		int nbExplored = ((MyCollectAgent) this.myAgent).getNbExplored();
 		
 		/* Initialisation de la carte */
 		if(myMap==null) {
@@ -105,12 +107,34 @@ public class MyCollectExploreBehaviour extends SimpleBehaviour {
         	}
     	}
     	
+    	int qteCollective = 0;
+    	if(listMyType!=null) {
+    		//parcours de la liste
+    		for(Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant> tuple : listMyType) {
+    			//si la quantité de ressource > 0 ET ((myLockPicking et myStretgh sont assez) OU (le coffre est déjà ouvert))
+        		if(tuple.get_2()>0 && tuple.get_3().getThird()==0) {
+        			qteCollective++;
+        		}
+        	}
+    	}
+    	
+    	int qteToUnlock = 0;
+    	if(listGoldType!=null) {
+    		//parcours de la liste
+    		for(Tuple4<String, Integer,Tuple3<Integer, Integer, Integer>, Instant> tuple : listGoldType) {
+    			//si la quantité de ressource > 0 ET ((myLockPicking et myStretgh sont assez) OU (le coffre est déjà ouvert))
+        		if(tuple.get_2()>0 && tuple.get_3().getThird()==0) {
+        			qteToUnlock++;
+        		}
+        	}
+    	}
+    	
     	
     	// Si il y a des ressources à aller récuper dans la liste
     	if(qte>0) {
     		
     		// si capacité disponible
-    		if(cap>0) {
+    		if(cap>capMax/2) {
     			System.out.println(color+ agentName+" : J'ai la position de " + qte+ " ressources et j'ai une capacité de "+cap+" donc je vais les chercher.");
     			exit = 2;
     			finished = true;
@@ -141,34 +165,51 @@ public class MyCollectExploreBehaviour extends SimpleBehaviour {
     		
     	// Si aucune ressources récupérable n'est présente dans la liste
     	}else {
-    		
-    		//si pas capacité maximal
-    		if(cap<=capMax) {
     			
-    			//si position du tanker connue
-        		if(tankLoc !=null) {
-        			System.out.println(color+ agentName+" : Ma capacité n'est pas maximale : "+cap+" et je sais ou est le tanker je vais aller le voir.");
-        			//calcul du chemin
-        			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
-        			System.out.println("ma pos "+myPosition.toString()+" loc tank "+tankLoc.toString()+ " chemin "+chemin);
-        			if(chemin.size()!=0) {
-        				chemin.remove(chemin.size()-1);
-        			}
-        			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
-        			exit = 1;
-        			finished = true;
-        			return;
-        		
-        		//si position du tanker pas connu
-        		}else {
-        			System.out.println(color+ agentName+" : Ma capacité n'est pas maximale : "+cap+" mais je sais pas ou est le tanker donc j'explore.");
-        		}
-        	
-        	//si capacité maximale
-        	}else {
-        		System.out.println(color+ agentName+" : Ma capacité est maximale et je connais pas l'endroit des trésors donc j'explore.");
-        	}
-    	}
+			//si pas capacité maximal
+			if(cap<=capMax) {
+				
+				//si position du tanker connue
+	    		if(tankLoc !=null) {
+	    			System.out.println(color+ agentName+" : Ma capacité n'est pas maximale : "+cap+" et je sais ou est le tanker je vais aller le voir.");
+	    			//calcul du chemin
+	    			List<String> chemin = myMap.getShortestPath(myPosition.toString(), tankLoc.toString());
+	    			System.out.println("ma pos "+myPosition.toString()+" loc tank "+tankLoc.toString()+ " chemin "+chemin);
+	    			if(chemin.size()!=0) {
+	    				chemin.remove(chemin.size()-1);
+	    			}
+	    			Global.move(chemin, (AbstractDedaleAgent) myAgent, color, agentName);
+	    			exit = 1;
+	    			finished = true;
+	    			return;
+	    		
+	    		//si position du tanker pas connu
+	    		}else {
+	    			System.out.println(color+ agentName+" : Ma capacité n'est pas maximale : "+cap+" mais je sais pas ou est le tanker donc j'explore.");
+	    		}
+	    	
+	    	//si capacité maximale
+	    	}else {
+	    		if(nbExplored<=1) {
+					System.out.println(color+ agentName+" : Ma capacité n'est pas maximale : "+cap+" mais je sais pas ou est le tanker donc j'explore.");
+				}else {
+					System.out.println(color+ agentName+" : Explorée au moins une fois");
+	    			if(qteCollective > 0 && resType.toString().equals("Gold")) {
+	    				System.out.println(color+ agentName+" : (Gold) J'ai exploré la carte plus de 3 fois, je vais essayer d'ouvir les coffres verouillés");
+	    				exit = 2;
+	        			finished = true;
+	        			return;
+	    			}
+	    			if(qteToUnlock > 0 && !resType.toString().equals("Gold")) {
+	    				System.out.println(color+ agentName+" : (Diamond) J'ai exploré la carte plus de 3 fois, je vais essayer d'aider à ouvrir les coffres des Godl");
+	    				exit = 2;
+	        			finished = true;
+	        			return;
+	    			}
+				}
+	    	}
+			
+		}
 
 		
 		/*
@@ -225,6 +266,7 @@ public class MyCollectExploreBehaviour extends SimpleBehaviour {
 			if (!myMap.hasOpenNode()){
 				//Exploration finie
 				System.out.println(color + agentName+" : Toute la carte a été explorée.");
+				((MyCollectAgent) this.myAgent).setNbExplored(((MyCollectAgent) this.myAgent).getNbExplored()+1);
 				((MyCollectAgent) this.myAgent).setIsMapExplored(true);
 				exit = 1;
 				finished = true;

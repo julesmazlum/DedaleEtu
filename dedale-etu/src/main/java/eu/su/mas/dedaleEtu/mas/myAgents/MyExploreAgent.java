@@ -29,6 +29,7 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	private boolean isMapExplored = false;
 	private boolean isInitialMapExplored = false;
 	private String agentNameToSendTo = null;
+	private int nbExplored = 0;
 	
 	/* Gestion des agents */
 	
@@ -178,6 +179,18 @@ public class MyExploreAgent extends AbstractDedaleAgent {
 	public void setTanker(Tuple3<String, Location, Instant> tanker) {
 		this.tanker = tanker;
 	}
+
+
+	public int getNbExplored() {
+		return nbExplored;
+	}
+
+
+	public void setNbExplored(int nbExplored) {
+		this.nbExplored = nbExplored;
+	}
+	
+	
 	
 	
 	
